@@ -3,7 +3,7 @@ library(extrafont)
 library(scales)
 library(Cairo)
 
-
+#' Inews Pallette
 inews_pal <- function() {
   values <- c("#E33A11","#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#fdbf6f","#cab2d6","#6a3d9a", "#ffff99", "#b15928")
   max_n <- length(values)
@@ -12,15 +12,20 @@ inews_pal <- function() {
   f
 }
 
+#'Inews Colour scale
 scale_colour_inews <- function(...) {
   discrete_scale("colour", "inews", inews_pal(), ...)
 }
 
+#'Inews fill scale
 scale_fill_inews <- function(...) {
   discrete_scale("fill", "inews", inews_pal(), ...)
 }
 
-
+#' Inews basic theme
+#'
+#' @param base_size Basic size of graph, defaults to 25
+#' @param base_family base font family, not implemented
 theme_inews_basic <- function(base_size = 25, base_family="") {
   theme_minimal(base_size = base_size, base_family = base_family) %+replace%
     theme(
@@ -67,6 +72,11 @@ theme_inews_basic <- function(base_size = 25, base_family="") {
     )
 
 }
+
+#' Inews ggparlaiment theme
+#'
+#' @param base_size Basic size of graph, defaults to 25
+#' @param base_family base font family, not implemented
 theme_inews_parl <- function(base_size = 25, base_family="") {
   theme_void(base_size = base_size, base_family = base_family) %+replace%
     theme(
@@ -93,6 +103,10 @@ theme_inews_parl <- function(base_size = 25, base_family="") {
 
 }
 
+#' Inews map theme
+#'
+#' @param base_size Basic size of graph, defaults to 25
+#' @param base_family base font family, not implemented
 theme_inews_map <- function(base_size = 25, base_family=""){
   theme_void(base_size = 25, base_family = "") %+replace%
     theme(
@@ -121,6 +135,11 @@ theme_inews_map <- function(base_size = 25, base_family=""){
     )
 }
 
+#' Save plots (ggsave wrapper)
+#' @param filename The filename specified
+#' @param plot The plot to render, defaults to last plot
+#' @param width_i Specified width in cm, defaults to 15
+#' @param height_i Specified height in cm, defaults to 10
 save_inews <- function(filename, plot=last_plot(), width_i = 15, height_i = 10){
   ggsave(filename, plot, dpi = 300, type = "cairo", width = width_i, height = height_i, units = "cm")
 }
