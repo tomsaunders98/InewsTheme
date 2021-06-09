@@ -27,7 +27,7 @@
   * save_inews
     * Uses ggsave with most common settings:
       * width = 15 (cm)
-      * height = 15 (cm)
+      * height = 10 (cm)
       
       
 
