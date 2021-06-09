@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1623223149489.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "59518438",
+    "lastKnownWriteTime" : 1623224495,
+    "last_content_update" : 1623224495434,
+    "path" : "C:/Users/Tom/Inews/Covid_deets/vaccine_area.r",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "18,26",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 8,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

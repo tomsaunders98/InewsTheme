@@ -1,0 +1,168 @@
+library(tidyverse)
+
+
+theme_inews <- function(base_size = 20, base_family="") {
+  extrafont::loadfonts(device = "win", quiet = TRUE)
+  theme_minimal(base_size = base_size, base_family = base_family) %+replace%
+    theme(
+      #Plot/general
+      
+      plot.margin = margin(t = 10,r = 10, b = 10,l =10, unit = "pt"),
+      
+      #Format Legend
+      legend.title=element_blank(),
+      legend.position = "top",
+      legend.direction = "horizontal",
+      legend.justification = "left",
+      legend.spacing = unit(0, "points"),
+      legend.key.size = unit(1, "lines"),
+      legend.key.height = NULL,
+      legend.key.width = NULL,
+      legend.margin = margin(t = 0,r = 0, b = 0,l =0, unit = "pt"),
+      legend.box.margin = margin(t = 5,r = 0, b = 0,l =0, unit = "pt"),
+      legend.box.spacing = unit(4, "points"),
+      legend.text = element_text(size = rel(0.9)),
+      
+      
+      #Formatting fonts and colours
+      plot.title = element_text(size = rel(1.2), colour = "#000000", family = "Bitter", face="bold", hjust = 0),
+      text = element_text(size=rel(1), family="Bitter", colour = "#898a8c"),
+      plot.subtitle = element_text(size = rel(0.9), colour = "#525354", family="Bitter", hjust=0),
+      axis.title = element_blank(),
+      axis.text = element_text(size = rel(0.8), margin=margin(0,0,0,0, unit="pt")),
+      axis.ticks = element_line(size = rel(0.5), colour = "#878787"),
+      axis.ticks.y = element_blank(),
+      axis.ticks.length = unit(5, "points"),
+      axis.line.x = element_line(colour = "#878787", size = rel(0.5)),
+      
+      #Format backgrounds + panels
+      panel.background = element_rect(linetype = 0),
+      panel.border = element_blank(),
+      panel.grid.major = element_line(colour = "#e0e1e2", size = rel(0.5)),
+      panel.grid.major.x = element_blank(),
+      panel.grid.minor = element_blank(),
+      
+      plot.caption = element_text(family="Bitter", colour = "#898a8c", size = rel(0.3), hjust = 0)
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+    )
+  
+}
+
+
+
+
+uk_var <- read.csv("var_by_rea.csv") %>%
+  mutate(
+    date = as.Date(date, format="%d/%m/%Y")
+  ) %>%
+  pivot_longer(!date, names_to="type", values_to="quant") %>%
+  mutate(
+    type = ifelse(type == "Alpha", "Alpha variant (UK)", type),
+    type = ifelse(type == "Delta", "Delta variant (India)", type),
+    type = ifelse(type == "Other", "Other variant", type)
+  ) %>%
+  mutate(
+    type = as.factor(type)
+  )
+
+uk_var <- uk_var[order(uk_var$type, decreasing = TRUE),]
+
+ggplot(uk_var, aes(x=date, y=quant, fill=as.factor(type))) +
+  labs(title = "Delta variant now the most common", subtitle="Variant prevalnce for all England", caption = "source:PHE Technical briefing 14 \n © Inews") +
+  geom_area() +
+  theme_inews() +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), labels = scales::percent) +
+  scale_fill_inews() +
+  scale_x_date(expand = expansion(mult = c(0, .1)))
+  
+ggsave("variants.png", dpi = 300, type = "cairo", width = 15, height = 10, units = "cm")
+
+
+#### Delta variant by region
+
+d_by_a <- read.csv("delta_area.csv") %>%
+  subset(
+    Region != "Total"
+  )
+
+ggplot(data=d_by_a, aes(x= reorder(Region, Case_prop), y =Case_prop, fill=Region) ) +
+  geom_bar(stat = "identity") +
+    scale_y_continuous(expand = expansion(mult = c(0, .1)), labels = scales::percent) +
+    theme_inews() +
+    labs(title = "Prevalence of the Dela variant", subtitle="Number of confirmed and probable Delta cases by region", caption = "source:PHE Technical breifing 14 \n © Inews") +
+    scale_fill_inews() +
+    coord_flip() + 
+    theme(
+      legend.position = "none"
+    )
+
+ggsave("delta_by_area.png", dpi = 300, type = "cairo", width = 30, height = 10, units = "cm")
+
+  
+####Vaccine projection####
+
+vnums <- read.csv("vaccine_nums.csv") %>%
+  mutate(
+    date = as.Date(date, format="%d/%m/%Y") 
+  ) %>%
+  rename(
+    vacs = cumPeopleVaccinatedSecondDoseByPublishDate
+  ) %>%
+  select(date, vacs)
+  
+lw <- vnums %>%
+  subset(
+    date > as.Date("1/5/2021", format="%d/%m/%Y")
+  )
+
+fit = lm(vacs~date, data = lw)
+
+#date_r <- expand.grid(date=seq(31, 60, 1))
+
+date_r <- data.frame(date=seq(max(vnums$date), as.Date("2021/08/01"), by = "day"))
+
+newvac <- data.frame(vacs=predict(fit, newdata = date_r), date = date_r)
+
+
+
+
+
+
+ggplot(data=vnums,aes(x=date, y=vacs, colour = "#E33A11"))+
+  geom_line(size = 1.5) +
+  geom_line(data=newvac, linetype = 'dashed', colour="#cecccd", size=0.8) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0.9*min(vnums$vacs), 1.1*max(newvac$vacs)), labels=scales::comma) +
+  scale_x_date(limits = c(min(vnums$date), max(newvac$date))) +
+  theme_inews() +
+  theme(legend.position = "none") +
+  labs(title = "Vaccine Progress so far", subtitle="The number of people with two vaccine doses", caption = "source: Public Health England \n © Inews") +
+  scale_colour_inews() +
+  theme(
+    legend.position = "none"
+  ) +
+  annotate("text", x = as.Date("2021/06/01"), y = 40000000, label = "Vaccine progress at \n current rate", colour="#6b6b6b")
+
+ggsave("2dose_proj.png", dpi = 300, type = "cairo", width = 15, height = 10, units = "cm")
+
+hosp <- read.csv("hosp_ad.csv") %>%
+  mutate(
+    date = as.Date(date, format="%d/%m/%Y")
+  )
+
+ggplot(data=hosp,aes(x=date, y=newAdmissions, colour = "#E33A11"))+
+  geom_line(size = 1.5) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), labels=scales::comma) +
+  labs(title = "Hopsital Admissions", subtitle="New Hospital admissions", caption = "source: Covid-19 dashboard \n © Inews") +
+  theme_inews() +
+  theme(legend.position = "none")
+ggsave("hosp.png", dpi = 300, type = "cairo", width = 15, height = 10, units = "cm")
+
