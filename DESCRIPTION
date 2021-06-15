@@ -9,7 +9,8 @@ Imports:
   grid,
   extrafont,
   scales,
-  Cairo
+  Cairo,
+  stats
 Maintainer: The package maintainer <yourself@somewhere.net>
 Description: ggplot intergrated theme for Inews website
 Encoding: UTF-8

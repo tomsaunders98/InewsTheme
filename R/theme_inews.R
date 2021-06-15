@@ -2,6 +2,11 @@ library(grid)
 library(extrafont)
 library(scales)
 library(Cairo)
+library(stats)
+
+#' Rolling Average
+#' @param n The number of days to execute rolling average over
+ra <- function(x, n = 7){stats::filter(x, rep(1 / n, n), sides = 2)}
 
 #' Inews Pallette
 inews_pal <- function() {
@@ -66,8 +71,8 @@ theme_inews_basic <- function(base_size = 25, base_family="") {
       #formatting text
       plot.title = element_text(size = rel(1.5), colour = "#000000", family = "Bitter", face="bold", hjust = 0),
       text = element_text(size=rel(1), family="Bitter", colour = "#898a8c"),
-      plot.subtitle = element_text(size = rel(1.1), colour = "#525354", family="Bitter", hjust=0),
-      plot.caption = element_text(family="Bitter", colour = "#898a8c", size = rel(0.8), hjust = 0)
+      plot.subtitle = element_text(size = rel(1.1), colour = "#525354", family="Bitter", hjust=0, margin=margin(t=5)),
+      plot.caption = element_text(family="Bitter", colour = "#898a8c", size = rel(0.5), hjust = 0)
 
     )
 
@@ -96,12 +101,25 @@ theme_inews_parl <- function(base_size = 25, base_family="") {
       #Format plot (with margins)
       plot.title.position = "panel",
       plot.margin = margin(t = 0, r = 5, b = 0, l = 5, unit = "cm"),
+
       #Format titles/text formatting
       plot.title = element_text(size = rel(15), colour = "#000000", family = "Bitter", face = "bold", hjust = 0),
       text = element_text(size = rel(1), family = "Bitter", colour = "#898a8c"),
-      plot.subtitle = element_text(size = rel(10), colour = "#525354", family = "Bitter", hjust = 0))
+      plot.subtitle = element_text(size = rel(10), colour = "#525354", family = "Bitter", hjust = 0, margin=margin(t=5)),
+      plot.caption = element_text(family = "Bitter", colour = "#898a8c", size = rel(0.5), hjust = 0)
+      )
+
 
 }
+
+theme_inews_facet <- function(base_size = 25, base_family="") {
+  theme_inews_basic(base_size = base_size, base_family = base_family) %+replace%
+    theme(
+      plot.title = element_text(hjust = 0.5),
+      plot.subtitle = element_text(hjust=0.5)
+    )
+}
+
 
 #' Inews map theme
 #'
@@ -127,8 +145,8 @@ theme_inews_map <- function(base_size = 25, base_family=""){
       #Format text elements
       plot.title = element_text(size = rel(1.5), colour = "#000000", family = "Bitter", face = "bold",  hjust = 0),
       text = element_text(size = rel(1), family = "Bitter", colour = "#898a8c"),
-      plot.subtitle = element_text(size = rel(1.1), colour = "#525354", family = "Bitter", hjust = 0),
-      plot.caption = element_text(family = "Bitter", colour = "#898a8c", size = rel(0.8), hjust = 0),
+      plot.subtitle = element_text(size = rel(1.1), colour = "#525354", family = "Bitter", hjust = 0, margin=margin(t=5)),
+      plot.caption = element_text(family = "Bitter", colour = "#898a8c", size = rel(0.5), hjust = 0),
 
       #Add small margin
       plot.margin = margin(t = 10,r = 10, b = 10,l =10, unit = "pt")
@@ -140,8 +158,27 @@ theme_inews_map <- function(base_size = 25, base_family=""){
 #' @param plot The plot to render, defaults to last plot
 #' @param width_i Specified width in cm, defaults to 15
 #' @param height_i Specified height in cm, defaults to 10
-save_inews <- function(filename, plot=last_plot(), width_i = 15, height_i = 10){
-  ggsave(filename, plot, dpi = 300, type = "cairo", width = width_i, height = height_i, units = "cm")
+#' @param type Adds presets for maps/parls and other types to render
+#' @param l_size Enables to turn off limiting size
+save_inews <- function(filename, plot=last_plot(), width_i = 15, height_i = 10, type="basic", l_size=TRUE){
+  # Add copyright
+  cap_all <- ggplot_build(plot)
+  cap <-  cap_all[[3]][[9]]$caption
+  newcap <- paste(cap, "© The I", sep="\n")
+  plot <- plot +
+    labs(caption = newcap)
+
+  # Add presets:
+  if (type == "map"){
+    height_i = 25
+    width_i = 25
+  } else if (type == "parl"){
+    height_i= 20
+    width_i = 20
+  }
+
+  ggsave(filename, plot, dpi = 300, type = "cairo", width = width_i, height = height_i, units = "cm", limitsize = l_size)
+
 }
 
 

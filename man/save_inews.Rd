@@ -4,7 +4,14 @@
 \alias{save_inews}
 \title{Save plots (ggsave wrapper)}
 \usage{
-save_inews(filename, plot = last_plot(), width_i = 15, height_i = 10)
+save_inews(
+  filename,
+  plot = last_plot(),
+  width_i = 15,
+  height_i = 10,
+  type = "basic",
+  l_size = TRUE
+)
 }
 \arguments{
 \item{filename}{The filename specified}
@@ -14,6 +21,10 @@ save_inews(filename, plot = last_plot(), width_i = 15, height_i = 10)
 \item{width_i}{Specified width in cm, defaults to 15}
 
 \item{height_i}{Specified height in cm, defaults to 10}
+
+\item{type}{Adds presets for maps/parls and other types to render}
+
+\item{l_size}{Enables to turn off limiting size}
 }
 \description{
 Save plots (ggsave wrapper)
