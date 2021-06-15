@@ -3,6 +3,7 @@ library(extrafont)
 library(scales)
 library(Cairo)
 library(stats)
+library(ggplot2)
 
 #' Rolling Average
 #' @param n The number of days to execute rolling average over
