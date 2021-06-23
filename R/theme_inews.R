@@ -4,6 +4,7 @@ library(scales)
 library(Cairo)
 library(stats)
 library(ggplot2)
+library(ggrepel)
 
 #' Rolling Average
 #' @param n The number of days to execute rolling average over
@@ -220,6 +221,14 @@ save_inews <- function(filename, plot=last_plot(), width_i = 15, height_i = 10, 
 
   ggsave(filename, plot, dpi = 300, type = "cairo", width = width_i, height = height_i, units = "cm", limitsize = l_size)
 
+}
+
+set_default_inews <- function(){
+  ggplot2::update_geom_defaults("text", list(family = "Bitter", colour="#898c89", size = 2))
+  ggplot2::update_geom_defaults("label", list(family = "Bitter", colour="#898c89", size = 2))
+  ggplot2::update_geom_defaults("text_repel", list(family = "Bitter", colour="#898c89", size = 2))
+  ggplot2::update_geom_defaults("label_repel", list(family = "Bitter", colour="#898c89", size = 2))
+  ggplot2::update_geom_defaults("line", list(colour="#E33A11", size=1.5))
 }
 
 

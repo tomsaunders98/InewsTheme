@@ -10,7 +10,8 @@ Imports:
   extrafont,
   scales,
   Cairo,
-  stats
+  stats,
+  ggrepel
 Maintainer: The package maintainer <yourself@somewhere.net>
 Description: ggplot intergrated theme for Inews website
 Encoding: UTF-8
