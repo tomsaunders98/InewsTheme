@@ -170,32 +170,36 @@ save_inews <- function(filename, plot=last_plot(), width_i = 15, height_i = 10, 
     tmpfile <- tempfile(pattern = "png")
     png(tmpfile, width = width, height = height, units="cm", res=300) # it is necessary to open a device
     plot(g)
-    legendSize <- as.numeric(grid::convertWidth(grobWidth(gGrob$grobs[[15]]), unitTo = "inches"))
-    plotSize <-   as.numeric(grid::convertWidth(grobWidth(gGrob$grobs[[7]]), unitTo = "inches"))
+    legendSize <- as.numeric(grid::convertWidth(grid::grobWidth(gGrob$grobs[[15]]), unitTo = "inches"))
+    plotSize <-   as.numeric(grid::convertWidth(grid::grobWidth(gGrob$grobs[[7]]), unitTo = "inches"))
     # the ratio of legend size to plot size
     dev.off()
     return(legendSize / plotSize)
   }
   if (type == "basic"){
     val <- plotAndPrintRatio(plot, width_i, height_i)
-    if(val > 1){
-      rows = ceiling(val)
-      pos_tps <- names(cap_all[[3]][[9]])
-      if ("colour" %in% pos_tps){
-        plot <- plot + guides(colour = guide_legend(nrow = rows))
+    if (is.integer(val)){
+      if(val > 1){
+        rows = ceiling(val)
+        pos_tps <- names(cap_all[[3]][[9]])
+        if ("colour" %in% pos_tps){
+          plot <- plot + guides(colour = guide_legend(nrow = rows))
+        }
+        if ("fill" %in% pos_tps){
+          plot <- plot + guides(fill = guide_legend(nrow = rows))
+        }
+        if ("size" %in% pos_tps){
+          plot <- plot + guides(size = guide_legend(nrow = rows))
+        }
+        if ("linetype" %in% pos_tps){
+          plot <- plot + guides(linetype = guide_legend(nrow = rows))
+        }
+        if ("alpha" %in% pos_tps){
+          plot <- plot + guides(alpha = guide_legend(nrow = rows))
+        }
       }
-      if ("fill" %in% pos_tps){
-        plot <- plot + guides(fill = guide_legend(nrow = rows))
-      }
-      if ("size" %in% pos_tps){
-        plot <- plot + guides(size = guide_legend(nrow = rows))
-      }
-      if ("linetype" %in% pos_tps){
-        plot <- plot + guides(linetype = guide_legend(nrow = rows))
-      }
-      if ("alpha" %in% pos_tps){
-        plot <- plot + guides(alpha = guide_legend(nrow = rows))
-      }
+    }else{
+      message("Probably not basic plot, facet? (not reformatting)")
     }
   }
 
