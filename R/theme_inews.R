@@ -178,7 +178,7 @@ save_inews <- function(filename, plot=last_plot(), width_i = 15, height_i = 10, 
   }
   if (type == "basic"){
     val <- plotAndPrintRatio(plot, width_i, height_i)
-    if (is.integer(val)){
+    if (is.numeric(val)){
       if(val > 1){
         rows = ceiling(val)
         pos_tps <- names(cap_all[[3]][[9]])
@@ -198,8 +198,6 @@ save_inews <- function(filename, plot=last_plot(), width_i = 15, height_i = 10, 
           plot <- plot + guides(alpha = guide_legend(nrow = rows))
         }
       }
-    }else{
-      message("Probably not basic plot, facet? (not reformatting)")
     }
   }
 
