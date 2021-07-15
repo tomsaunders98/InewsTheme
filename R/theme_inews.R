@@ -234,3 +234,46 @@ set_default_inews <- function(){
 }
 
 
+## Binned Map Pallettes
+# In theory, can just add palettes which can be incorporated into here
+# Potential to also add breaks based on intervals etc.
+#' Generate binned gradients by specifying bin width
+#' @param bvals Data to split into breaks
+#' @param pallette Prespecified pallettes
+#' @param width Size of each bin
+inews_fill_steps<- function(..., bvals = NULL, pallette = "blue", width = NULL, values = NULL, colours = NULL, breaks = NULL, space = "Lab", na.value = "grey50",
+                            guide = "coloursteps", aesthetics = "fill"){
+
+  find_origin <- function(x_range, width, boundary) {
+    shift <- floor((x_range[1] - boundary) / width)
+    boundary + shift * width
+  }
+
+  # Detect Pallette
+  if (is.null(colours)){
+    if (pallette == "blue"){
+      colours = c("#0D5750","#176F79","#247598","#3474b4","#54A5C1","#73CCCE","#94DACA","#B4E6CF")
+    }
+  }
+
+  # Compute Breaks
+  if (is.null(breaks)){
+    if (is.null(width)||is.null(bvals)) {
+      message("Must specify either breaks or break size")
+    }
+    width = as.numeric(width)
+    boundary <- width / 2
+    x_range <- range(bvals, na.rm = TRUE, finite = TRUE)
+    min_x <- find_origin(x_range, width, boundary)
+    max_x <- max(bvals, na.rm = TRUE) + (1 - 1e-08) * width
+    breaks <- seq(min_x, max_x, width)
+    message(breaks)
+  }
+
+
+  binned_scale(aesthetics, "stepsn",
+               scales::gradient_n_pal(colours, values, space), na.value = na.value, guide = guide, breaks = breaks, ...)
+
+}
+
+
