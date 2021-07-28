@@ -191,8 +191,6 @@ save_inews <- function(filename, plot=last_plot(), width_i = 15, height_i = 10, 
   }
   if (type == "basic"){
       val <- plotAndPrintRatio(plot, width_i, height_i)
-      message(val)
-      message(is.na(val))
     if (is.numeric(val) & is.na(val) == F){
       if(val > 1){
         rows = ceiling(val)
@@ -242,9 +240,10 @@ save_inews <- function(filename, plot=last_plot(), width_i = 15, height_i = 10, 
   }
 
   # Ensure scales are not expanded
-  if (expand == FALSE & type != "map"){
-    plot <- plot +
-      coord_cartesian(expand = FALSE)
+  if (expand == FALSE & plot$coordinates$default == T ){
+
+      plot <- plot +
+        coord_cartesian(expand = FALSE)
   }
 
   ggsave(filename, plot, dpi = 300, type = "cairo", width = width_i, height = height_i, units = "cm", limitsize = l_size)
