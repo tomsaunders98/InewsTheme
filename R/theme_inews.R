@@ -33,13 +33,19 @@ scale_fill_inews <- function(...) {
 #'
 #' @param base_size Basic size of graph, defaults to 25
 #' @param base_family base font family, not implemented
-theme_inews_basic <- function(base_size = 25, base_family="") {
+theme_inews_basic <- function(base_size = 25, base_family="", fill="White") {
+  if(fill == "White"){
+    f_val = "#ffffff"
+  }
+  if(fill == "Grey") {
+    f_val = "#f0f0f0"
+  }
   theme_minimal(base_size = base_size, base_family = base_family) %+replace%
     theme(
       #Plot/general
 
       plot.margin = margin(t = 10,r = 10, b = 10,l =10, unit = "pt"),
-
+      plot.background = element_rect(fill = f_val, colour=NA),
       #Format Legend
       legend.title=element_blank(),
       legend.position = "top",
@@ -103,6 +109,7 @@ theme_inews_parl <- function(base_size = 25, base_family="") {
       #Format plot (with margins)
       plot.title.position = "panel",
       plot.margin = margin(t = 0, r = 5, b = 0, l = 5, unit = "cm"),
+      plot.background = element_rect(fill = f_val, colour=NA),
 
       #Format titles/text formatting
       plot.title = element_text(size = rel(15), colour = "#000000", family = "Bitter", face = "bold", hjust = 0),
@@ -127,7 +134,13 @@ theme_inews_facet <- function(base_size = 25, base_family="") {
 #'
 #' @param base_size Basic size of graph, defaults to 25
 #' @param base_family base font family, not implemented
-theme_inews_map <- function(base_size = 25, base_family=""){
+theme_inews_map <- function(base_size = 25, base_family="", fill="White"){
+  if(fill == "White"){
+    f_val = "#ffffff"
+  }
+  if(fill == "Grey") {
+    f_val = "#f0f0f0"
+  }
   theme_void(base_size = 25, base_family = "") %+replace%
     theme(
       #Format legend
@@ -136,7 +149,7 @@ theme_inews_map <- function(base_size = 25, base_family=""){
       legend.direction = "vertical",
       legend.justification = "right",
       legend.spacing = unit(0, "points"),
-      legend.key.size = unit(2, "lines"),
+      legend.key.size = unit(3, "lines"),
       legend.key.height = NULL,
       legend.key.width = NULL,
       legend.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
@@ -145,10 +158,10 @@ theme_inews_map <- function(base_size = 25, base_family=""){
       legend.text = element_text(size = rel(0.9)),
 
       #Format text elements
-      plot.title = element_text(size = rel(1.5), colour = "#000000", family = "Bitter", face = "bold",  hjust = 0),
+      plot.title = element_text(size = rel(2), colour = "#000000", family = "Bitter", face = "bold",  hjust = 0),
       text = element_text(size = rel(1), family = "Bitter", colour = "#898a8c"),
-      plot.subtitle = element_text(size = rel(1.1), colour = "#525354", family = "Bitter", hjust = 0, margin=margin(t=5)),
-      plot.caption = element_text(family = "Bitter", colour = "#898a8c", size = rel(0.5), hjust = 0),
+      plot.subtitle = element_text(size = rel(1.3), colour = "#525354", family = "Bitter", hjust = 0, margin=margin(t=5)),
+      plot.caption = element_text(family = "Bitter", colour = "#898a8c", size = rel(1), hjust = 0),
 
       #Add small margin
       plot.margin = margin(t = 10,r = 10, b = 10,l =10, unit = "pt")
@@ -162,7 +175,7 @@ theme_inews_map <- function(base_size = 25, base_family=""){
 #' @param height_i Specified height in cm, defaults to 10
 #' @param type Adds presets for maps/parls and other types to render
 #' @param l_size Enables to turn off limiting size
-save_inews <- function(filename, plot=last_plot(), width_i = 15, height_i = 10, type="basic", l_size=TRUE){
+save_inews <- function(filename, plot=last_plot(), width_i = 15, height_i = 10, type="basic", l_size=TRUE, expand=FALSE){
   cap_all <- ggplot_build(plot)
   ################ Auto Formatting Legends ###############
   plotAndPrintRatio <- function(g, width, height) {
@@ -177,8 +190,13 @@ save_inews <- function(filename, plot=last_plot(), width_i = 15, height_i = 10, 
     return(legendSize / plotSize)
   }
   if (type == "basic"){
-    val <- plotAndPrintRatio(plot, width_i, height_i)
-    if (is.numeric(val)){
+    tryCatch({
+      val <- plotAndPrintRatio(plot, width_i, height_i)
+    }, error = function(e){
+      val = F
+      message("Trying to compute legend size, no legend ?")
+    })
+    if (is.numeric(val) & val != FALSE){
       if(val > 1){
         rows = ceiling(val)
         pos_tps <- names(cap_all[[3]][[9]])
@@ -212,19 +230,31 @@ save_inews <- function(filename, plot=last_plot(), width_i = 15, height_i = 10, 
   plot <- plot +
     labs(caption = newcap)
 
+
+
   # Add presets:
   if (type == "map"){
     height_i = 25
     width_i = 25
+    expand = TRUE #expand not relevant
+
   } else if (type == "parl"){
     height_i= 20
     width_i = 20
+    expand = TRUE
+  }
+
+  # Ensure scales are not expanded
+  if (expand == FALSE){
+    plot <- plot +
+      coord_cartesian(expand = FALSE)
   }
 
   ggsave(filename, plot, dpi = 300, type = "cairo", width = width_i, height = height_i, units = "cm", limitsize = l_size)
 
 }
 
+#' Update ggplot defaults for text etc. to Inews
 set_default_inews <- function(){
   ggplot2::update_geom_defaults("text", list(family = "Bitter", colour="#898c89", size = 2))
   ggplot2::update_geom_defaults("label", list(family = "Bitter", colour="#898c89", size = 2))
@@ -233,47 +263,32 @@ set_default_inews <- function(){
   ggplot2::update_geom_defaults("line", list(colour="#E33A11", size=1.5))
 }
 
-
-## Binned Map Pallettes
-# In theory, can just add palettes which can be incorporated into here
-# Potential to also add breaks based on intervals etc.
-#' Generate binned gradients by specifying bin width
-#' @param bvals Data to split into breaks
-#' @param pallette Prespecified pallettes
-#' @param width Size of each bin
-inews_fill_steps<- function(..., bvals = NULL, pallette = "blue", width = NULL, values = NULL, colours = NULL, breaks = NULL, space = "Lab", na.value = "grey50",
-                            guide = "coloursteps", aesthetics = "fill"){
-
-  find_origin <- function(x_range, width, boundary) {
-    shift <- floor((x_range[1] - boundary) / width)
-    boundary + shift * width
+get_inews_scales <- function(pallete){
+  if(pallete == "red_blue"){
+    return(c("#1572b7","#3d92c7","#68aed8","#9dcbe3","#c7ddf1","#dfedf9","#fde0d0","#fabaa1","#f69173","#f2694c","#ed3c2f","#c92026"))
   }
-
-  # Detect Pallette
-  if (is.null(colours)){
-    if (pallette == "blue"){
-      colours = c("#0D5750","#176F79","#247598","#3474b4","#54A5C1","#73CCCE","#94DACA","#B4E6CF")
-    }
+  if(pallete == "red_green"){
+    return(c("#01441b", "#036c2c","#238b45", "#41ab5d", "#74c476", "#a1d99b", "#c7e9c0", "#e5f5e0","#fee6ce", "#fdd0a2", "#fdae6b", "#fd8d3c", "#f16913", "#d94902", "#a63905", "#802805"))
   }
-
-  # Compute Breaks
-  if (is.null(breaks)){
-    if (is.null(width)||is.null(bvals)) {
-      message("Must specify either breaks or break size")
-    }
-    width = as.numeric(width)
-    boundary <- width / 2
-    x_range <- range(bvals, na.rm = TRUE, finite = TRUE)
-    min_x <- find_origin(x_range, width, boundary)
-    max_x <- max(bvals, na.rm = TRUE) + (1 - 1e-08) * width
-    breaks <- seq(min_x, max_x, width)
-    message(breaks)
+  if(pallete == "or_red"){
+    return(c("#fff7ec", "#fee8c8", "#fcd49e", "#fdbb83", "#fc8c59", "#ee6548", "#d7301f", "#b21700", "#7e0d00"))
   }
+  if(pallete == "blue_green"){
+    return(c("#0A2F51","#0E4D64","#137177","#188977", "#1D9A6C","#39A96B", "#56B870", "#74C67A", "#99D492", "#BFE1B0", "#DEEDCF"))
+  }
+}
 
+scale_inews_ferm <- function(direction = -1, na.value = "grey50", type = "seq", guide = "coloursteps", aesthetics = "fill", palette = "red_blue"){
+  pal <-scales::manual_pal(get_inews_scales(palette))
+  binned_scale("fill", "fermenter", ggplot2:::binned_pal(scales::manual_pal(unname(pal))), na.value = na.value, guide = guide, direction = direction, type=type, ...)
+}
 
-  binned_scale(aesthetics, "stepsn",
-               scales::gradient_n_pal(colours, values, space), na.value = na.value, guide = guide, breaks = breaks, ...)
+scale_inews_fill_bin <- function(x, style="pretty", pallete="red_blue", n = 5, direction = -1, na.value = "grey50", type = "seq"){
+  ## Build Breaks
+  brks <- classInt::classIntervals(x, n, style=style)["brks"]
+  scale_inews_ferm(pallete=pallete, n = 5, direction = -1, na.value = "grey50", type = "seq", breaks = brks, ...)
 
+  ## Select Palette #He is where we define the palettes
 }
 
 
