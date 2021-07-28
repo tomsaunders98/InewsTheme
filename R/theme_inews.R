@@ -176,10 +176,10 @@ theme_inews_map <- function(base_size = 25, base_family="", fill="White"){
 #' @param type Adds presets for maps/parls and other types to render
 #' @param l_size Enables to turn off limiting size
 save_inews <- function(filename, plot=last_plot(), width_i = 15, height_i = 10, type="basic", l_size=TRUE, expand=FALSE){
-  cap_all <- ggplot_build(plot)
+  cap_all <- ggplot2::ggplot_build(plot)
   ################ Auto Formatting Legends ###############
   plotAndPrintRatio <- function(g, width, height) {
-    gGrob <- ggplotGrob(g)
+    gGrob <- ggplot2::ggplotGrob(g)
     tmpfile <- tempfile(pattern = "png")
     png(tmpfile, width = width, height = height, units="cm", res=300) # it is necessary to open a device
     plot(g)
@@ -190,13 +190,10 @@ save_inews <- function(filename, plot=last_plot(), width_i = 15, height_i = 10, 
     return(legendSize / plotSize)
   }
   if (type == "basic"){
-    tryCatch({
       val <- plotAndPrintRatio(plot, width_i, height_i)
-    }, error = function(e){
-      val = F
-      message("Trying to compute legend size, no legend ?")
-    })
-    if (is.numeric(val) & val != FALSE){
+      message(val)
+      message(is.na(val))
+    if (is.numeric(val) & is.na(val) == F){
       if(val > 1){
         rows = ceiling(val)
         pos_tps <- names(cap_all[[3]][[9]])
@@ -245,7 +242,7 @@ save_inews <- function(filename, plot=last_plot(), width_i = 15, height_i = 10, 
   }
 
   # Ensure scales are not expanded
-  if (expand == FALSE){
+  if (expand == FALSE & type != "map"){
     plot <- plot +
       coord_cartesian(expand = FALSE)
   }
@@ -263,32 +260,74 @@ set_default_inews <- function(){
   ggplot2::update_geom_defaults("line", list(colour="#E33A11", size=1.5))
 }
 
-get_inews_scales <- function(pallete){
-  if(pallete == "red_blue"){
-    return(c("#1572b7","#3d92c7","#68aed8","#9dcbe3","#c7ddf1","#dfedf9","#fde0d0","#fabaa1","#f69173","#f2694c","#ed3c2f","#c92026"))
+#' Collection of colour scales for Inews
+#' @param n number of colours to return
+#' @param palette palette to go to get_inews_scale
+#' @param direction whether to reverse palette
+get_inews_scales <- function(palette, n, direction){
+  red_blue <- c("#1572b7","#3d92c7","#68aed8","#9dcbe3","#c7ddf1","#dfedf9","#fde0d0","#fabaa1","#f69173","#f2694c","#ed3c2f","#c92026")
+  red_green <- c("#01441b", "#036c2c","#238b45", "#41ab5d", "#74c476", "#a1d99b", "#c7e9c0", "#e5f5e0","#fee6ce", "#fdd0a2", "#fdae6b", "#fd8d3c", "#f16913", "#d94902", "#a63905", "#802805")
+  or_red <- c("#fff7ec", "#fee8c8", "#fcd49e", "#fdbb83", "#fc8c59", "#ee6548", "#d7301f", "#b21700", "#7e0d00")
+  blue_green <- c("#0A2F51","#0E4D64","#137177","#188977", "#1D9A6C","#39A96B", "#56B870", "#74C67A", "#99D492", "#BFE1B0", "#DEEDCF")
+
+  if(palette == "red_blue"){
+    pal <- red_blue
+    mid <- "#dfedf9"
   }
-  if(pallete == "red_green"){
-    return(c("#01441b", "#036c2c","#238b45", "#41ab5d", "#74c476", "#a1d99b", "#c7e9c0", "#e5f5e0","#fee6ce", "#fdd0a2", "#fdae6b", "#fd8d3c", "#f16913", "#d94902", "#a63905", "#802805"))
+  if(palette == "red_green"){
+    pal <- red_green
+    mid <- "#e5f5e0"
   }
-  if(pallete == "or_red"){
-    return(c("#fff7ec", "#fee8c8", "#fcd49e", "#fdbb83", "#fc8c59", "#ee6548", "#d7301f", "#b21700", "#7e0d00"))
+  if(palette == "or_red"){
+    pal <- or_red
+    mid <- "#fc8c59"
   }
-  if(pallete == "blue_green"){
-    return(c("#0A2F51","#0E4D64","#137177","#188977", "#1D9A6C","#39A96B", "#56B870", "#74C67A", "#99D492", "#BFE1B0", "#DEEDCF"))
+  if(palette == "blue_green"){
+    pal <- blue_green
+    mid <- "#39A96B"
   }
+  if(n%%2 != 0){
+    mid_n <- round(n/2)
+    sides <- n-mid_n
+    l_side <- head(pal, sides)
+    u_side <- tail(pal, sides)
+    if (direction == -1){
+      return(rev(c(l_side, mid, u_side)))
+    }
+    if(direction == 1){
+      return(c(l_side, mid, u_side))
+    }
+
+  }
+  if(n%%2 == 0){
+    sides <- n/2
+    l_side <- head(pal, sides)
+    u_side <- tail(pal, sides)
+    if (direction == -1){
+      return(rev(c(l_side, u_side)))
+    }
+    if(direction == 1){
+      return(c(l_side, u_side))
+    }
+
+  }
+
+}
+#' Binned scale (scale_fill_fermenter wrapper with better gradients)
+#' @breaks Either values to turn into breaks or custom breaks
+#' @db Whether or not breaks are direct or to be turned into breaks
+#' @param n number of breaks (if not direct)
+#' @param style to be passed on to classInt
+#' @param palette palette to go to get_inews_scale
+#' @param direction whether to reverse palette
+scale_inews_ferm <- function(breaks, db=F, n=5, direction = 1, style="pretty", palette="red_blue", na.value = "grey50", guide = "coloursteps", ...){
+  if(db == FALSE){
+    breaks <- unname(unlist(classInt::classIntervals(breaks, n, style=style)["brks"]))
+  }
+  n <- length(breaks)-1
+  pal <-scales::manual_pal(get_inews_scales(palette, n, direction))
+  binned_scale("fill", "fermenter", ggplot2:::binned_pal(pal), na.value = na.value, guide = guide, breaks = breaks, ...)
 }
 
-scale_inews_ferm <- function(direction = -1, na.value = "grey50", type = "seq", guide = "coloursteps", aesthetics = "fill", palette = "red_blue"){
-  pal <-scales::manual_pal(get_inews_scales(palette))
-  binned_scale("fill", "fermenter", ggplot2:::binned_pal(scales::manual_pal(unname(pal))), na.value = na.value, guide = guide, direction = direction, type=type, ...)
-}
-
-scale_inews_fill_bin <- function(x, style="pretty", pallete="red_blue", n = 5, direction = -1, na.value = "grey50", type = "seq"){
-  ## Build Breaks
-  brks <- classInt::classIntervals(x, n, style=style)["brks"]
-  scale_inews_ferm(pallete=pallete, n = 5, direction = -1, na.value = "grey50", type = "seq", breaks = brks, ...)
-
-  ## Select Palette #He is where we define the palettes
-}
 
 
