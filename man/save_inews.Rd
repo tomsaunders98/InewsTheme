@@ -10,7 +10,8 @@ save_inews(
   width_i = 15,
   height_i = 10,
   type = "basic",
-  l_size = TRUE
+  l_size = TRUE,
+  expand = FALSE
 )
 }
 \arguments{

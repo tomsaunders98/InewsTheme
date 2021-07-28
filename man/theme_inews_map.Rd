@@ -4,7 +4,7 @@
 \alias{theme_inews_map}
 \title{Inews map theme}
 \usage{
-theme_inews_map(base_size = 25, base_family = "")
+theme_inews_map(base_size = 25, base_family = "", fill = "White")
 }
 \arguments{
 \item{base_size}{Basic size of graph, defaults to 25}

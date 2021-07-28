@@ -4,7 +4,7 @@
 \alias{theme_inews_basic}
 \title{Inews basic theme}
 \usage{
-theme_inews_basic(base_size = 25, base_family = "")
+theme_inews_basic(base_size = 25, base_family = "", fill = "White")
 }
 \arguments{
 \item{base_size}{Basic size of graph, defaults to 25}
