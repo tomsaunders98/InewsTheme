@@ -11,7 +11,8 @@ Imports:
   scales,
   Cairo,
   stats,
-  ggrepel
+  ggrepel,
+  classInt
 Maintainer: The package maintainer <yourself@somewhere.net>
 Description: ggplot intergrated theme for Inews website
 Encoding: UTF-8
