@@ -240,7 +240,7 @@ save_inews <- function(filename, plot=last_plot(), width_i = 15, height_i = 10, 
   }
 
   # Ensure scales are not expanded
-  if (expand == FALSE & plot$coordinates$default == T ){
+  if (expand == TRUE & plot$coordinates$default == T ){
 
       plot <- plot +
         coord_cartesian(expand = FALSE)
