@@ -77,7 +77,7 @@ theme_inews_basic <- function(base_size = 25, base_family="", fill="White") {
       panel.grid.minor = element_blank(),
 
       #formatting text
-      plot.title = element_text(size = rel(1.5), colour = "#000000", family = "Bitter", face="bold", hjust = 0),
+      plot.title = element_text(size = rel(1.2), colour = "#000000", family = "Bitter", face="bold", hjust = 0),
       text = element_text(size=rel(1), family="Bitter", colour = "#898a8c"),
       plot.subtitle = element_text(size = rel(1.1), colour = "#525354", family="Bitter", hjust=0, margin=margin(t=5)),
       plot.caption = element_text(family="Bitter", colour = "#898a8c", size = rel(0.5), hjust = 0)
