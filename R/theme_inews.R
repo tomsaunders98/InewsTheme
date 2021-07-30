@@ -12,7 +12,7 @@ ra <- function(x, n = 7){stats::filter(x, rep(1 / n, n), sides = 2)}
 
 #' Inews Pallette
 inews_pal <- function() {
-  values <- c("#E33A11","#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#fdbf6f","#cab2d6","#6a3d9a", "#ffff99", "#b15928")
+  values <- c("#E33A11","#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#fdbf6f","#cab2d6","#6a3d9a",  "#b15928", "#c6c623")
   max_n <- length(values)
   f <- scales::manual_pal(values)
   attr(f, "max_n") <- max_n
