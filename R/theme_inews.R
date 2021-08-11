@@ -145,15 +145,14 @@ theme_inews_map <- function(base_size = 25, base_family="", fill="White"){
     theme(
       #Format legend
       legend.title = element_blank(),
-      legend.position = "right",
-      legend.direction = "vertical",
-      legend.justification = "right",
+      legend.position = "top",
+      legend.direction = "horizontal",
+      legend.key.height = unit(2, "lines"),
+      legend.key.width = unit(3, "lines"),
+      legend.justification = "left",
+      legend.box.margin = margin(t = 10, unit = "pt"),
       legend.spacing = unit(0, "points"),
-      legend.key.size = unit(3, "lines"),
-      legend.key.height = NULL,
-      legend.key.width = NULL,
       legend.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
-      legend.box.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
       legend.box.spacing = unit(4, "points"),
       legend.text = element_text(size = rel(0.9)),
 
@@ -231,12 +230,10 @@ save_inews <- function(filename, plot=last_plot(), width_i = 15, height_i = 10, 
   if (type == "map"){
     height_i = 25
     width_i = 25
-    expand = TRUE #expand not relevant
 
   } else if (type == "parl"){
     height_i= 20
     width_i = 20
-    expand = TRUE
   }
 
   # Ensure scales are not expanded
