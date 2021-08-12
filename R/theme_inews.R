@@ -174,7 +174,7 @@ theme_inews_map <- function(base_size = 25, base_family="", fill="White"){
 #' @param height_i Specified height in cm, defaults to 10
 #' @param type Adds presets for maps/parls and other types to render
 #' @param l_size Enables to turn off limiting size
-save_inews <- function(filename, plot=last_plot(), width_i = 15, height_i = 10, type="basic", l_size=TRUE, expand=FALSE){
+save_inews <- function(filename, plot=last_plot(), width_i = 15, height_i = 10, type="basic", l_size=TRUE, expand=FALSE, device="png"){
   cap_all <- ggplot2::ggplot_build(plot)
   ################ Auto Formatting Legends ###############
   plotAndPrintRatio <- function(g, width, height) {
@@ -242,10 +242,18 @@ save_inews <- function(filename, plot=last_plot(), width_i = 15, height_i = 10, 
       plot <- plot +
         coord_cartesian(expand = FALSE)
   }
+  if(device == "png"){
+    ggsave(filename, plot, dpi = 300, type = "cairo", width = width_i, height = height_i, units = "cm", limitsize = l_size)
+  }
+  if(device == "eps"){
+    ggsave(filename, plot, dpi = 300, device=cairo_ps, width = width_i, height = height_i, units = "cm", limitsize = l_size)
 
-  ggsave(filename, plot, dpi = 300, type = "cairo", width = width_i, height = height_i, units = "cm", limitsize = l_size)
-
+  }
+  if(device == "svg"){
+    ggsave(filename, plot, dpi = 300, device=svg, width = width_i, height = height_i, units = "cm", limitsize = l_size)
+  }
 }
+
 
 #' Update ggplot defaults for text etc. to Inews
 set_default_inews <- function(){
