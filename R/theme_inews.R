@@ -220,7 +220,7 @@ save_inews <- function(filename, plot=last_plot(), width_i = 15, height_i = 10, 
 
   cap <-  cap_all[[3]][[9]]$caption
   cap <- paste(cap, "By Tom Saunders", sep="\n")
-  newcap <- paste(cap, "© The I", sep="\n")
+  newcap <- paste(cap, "© i", sep="\n")
   plot <- plot +
     labs(caption = newcap)
 
