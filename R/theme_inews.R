@@ -270,7 +270,7 @@ set_default_inews <- function(){
 #' @breaks Either values to turn into breaks or custom breaks
 #' @palette paleteer pallette
 #' @direction Direction of colours
-scale_inews_ferm <- function(palette = palette,breaks = breaks, direction= 1,type="discrete", na.value = "grey50", ...){
+scale_inews_ferm <- function(palette = palette,breaks = breaks, direction= 1,type="discrete",labels = NA, na.value = "grey50", ...){
   if(type == "discrete"){
     colours <- as.vector(paletteer::paletteer_d(palette, length(breaks)+1))
   }
@@ -280,13 +280,25 @@ scale_inews_ferm <- function(palette = palette,breaks = breaks, direction= 1,typ
   if(direction == -1){
     colours <- rev(colours)
   }
-  binned_scale("fill",
-               "foo",
-               ggplot2:::binned_pal(scales::manual_pal(colours)),
-               guide="coloursteps",
-               breaks = breaks,
-               na.value = na.value
-               )
+  if(is.na(labels)){
+    binned_scale("fill",
+                 "foo",
+                 ggplot2:::binned_pal(scales::manual_pal(colours)),
+                 guide="coloursteps",
+                 breaks = breaks,
+                 na.value = na.value
+    )
+  }else{
+    binned_scale("fill",
+                 "foo",
+                 ggplot2:::binned_pal(scales::manual_pal(colours)),
+                 guide="coloursteps",
+                 breaks = breaks,
+                 na.value = na.value,
+                 labels = labels
+    )
+  }
+
 }
 
 
