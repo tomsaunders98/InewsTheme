@@ -12,7 +12,8 @@ Imports:
   Cairo,
   stats,
   ggrepel,
-  classInt
+  classInt,
+  paletteer
 Maintainer: The package maintainer <yourself@somewhere.net>
 Description: ggplot intergrated theme for Inews website
 Encoding: UTF-8

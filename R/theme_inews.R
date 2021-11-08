@@ -5,6 +5,7 @@ library(Cairo)
 library(stats)
 library(ggplot2)
 library(ggrepel)
+library(paletteer)
 
 #' Rolling Average
 #' @param n The number of days to execute rolling average over
@@ -264,73 +265,28 @@ set_default_inews <- function(){
   ggplot2::update_geom_defaults("line", list(colour="#E33A11", size=1.5))
 }
 
-#' Collection of colour scales for Inews
-#' @param n number of colours to return
-#' @param palette palette to go to get_inews_scale
-#' @param direction whether to reverse palette
-get_inews_scales <- function(palette, n, direction){
-  red_blue <- c("#1572b7","#3d92c7","#68aed8","#9dcbe3","#c7ddf1","#dfedf9","#fde0d0","#fabaa1","#f69173","#f2694c","#ed3c2f","#c92026")
-  red_green <- c("#01441b", "#036c2c","#238b45", "#41ab5d", "#74c476", "#a1d99b", "#c7e9c0", "#e5f5e0","#fee6ce", "#fdd0a2", "#fdae6b", "#fd8d3c", "#f16913", "#d94902", "#a63905", "#802805")
-  or_red <- c("#fff7ec", "#fee8c8", "#fcd49e", "#fdbb83", "#fc8c59", "#ee6548", "#d7301f", "#b21700", "#7e0d00")
-  blue_green <- c("#0A2F51","#0E4D64","#137177","#188977", "#1D9A6C","#39A96B", "#56B870", "#74C67A", "#99D492", "#BFE1B0", "#DEEDCF")
 
-  if(palette == "red_blue"){
-    pal <- red_blue
-    mid <- "#dfedf9"
-  }
-  if(palette == "red_green"){
-    pal <- red_green
-    mid <- "#e5f5e0"
-  }
-  if(palette == "or_red"){
-    pal <- or_red
-    mid <- "#fc8c59"
-  }
-  if(palette == "blue_green"){
-    pal <- blue_green
-    mid <- "#39A96B"
-  }
-  if(n%%2 != 0){
-    mid_n <- round(n/2)
-    sides <- n-mid_n
-    l_side <- head(pal, sides)
-    u_side <- tail(pal, sides)
-    if (direction == -1){
-      return(rev(c(l_side, mid, u_side)))
-    }
-    if(direction == 1){
-      return(c(l_side, mid, u_side))
-    }
-
-  }
-  if(n%%2 == 0){
-    sides <- n/2
-    l_side <- head(pal, sides)
-    u_side <- tail(pal, sides)
-    if (direction == -1){
-      return(rev(c(l_side, u_side)))
-    }
-    if(direction == 1){
-      return(c(l_side, u_side))
-    }
-
-  }
-
-}
 #' Binned scale (scale_fill_fermenter wrapper with better gradients)
 #' @breaks Either values to turn into breaks or custom breaks
-#' @db Whether or not breaks are direct or to be turned into breaks
-#' @param n number of breaks (if not direct)
-#' @param style to be passed on to classInt
-#' @param palette palette to go to get_inews_scale
-#' @param direction whether to reverse palette
-scale_inews_ferm <- function(breaks, db=F, n=5, direction = 1, style="pretty", palette="red_blue", na.value = "grey50", guide = "coloursteps", ...){
-  if(db == FALSE){
-    breaks <- unname(unlist(classInt::classIntervals(breaks, n, style=style)["brks"]))
+#' @palette paleteer pallette
+#' @direction Direction of colours
+scale_inews_ferm <- function(palette = palette,breaks = breaks, direction= 1,type="discrete", na.value = "grey50", ...){
+  if(type == "discrete"){
+    colours <- as.vector(paletteer::paletteer_d(palette, length(breaks)+1))
   }
-  n <- length(breaks)-1
-  pal <-scales::manual_pal(get_inews_scales(palette, n, direction))
-  binned_scale("fill", "fermenter", ggplot2:::binned_pal(pal), na.value = na.value, guide = guide, breaks = breaks, ...)
+  if(type == "continuous"){
+    colours <- as.vector(paletteer::paletteer_c(palette, length(breaks)+1))
+  }
+  if(direction == -1){
+    colours <- rev(colours)
+  }
+  binned_scale("fill",
+               "foo",
+               ggplot2:::binned_pal(scales::manual_pal(colours)),
+               guide="coloursteps",
+               breaks = breaks,
+               na.value = na.value
+               )
 }
 
 
