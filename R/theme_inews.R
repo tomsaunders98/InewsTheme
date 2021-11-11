@@ -175,13 +175,13 @@ theme_inews_map <- function(base_size = 25, base_family="", fill="White"){
 #' @param height_i Specified height in cm, defaults to 10
 #' @param type Adds presets for maps/parls and other types to render
 #' @param l_size Enables to turn off limiting size
-save_inews <- function(filename, plot=last_plot(), width_i = 15, height_i = 10, type="basic", l_size=TRUE, expand=FALSE, device="png"){
+save_inews <- function(filename, plot=last_plot(), width_i = 15, height_i = 10, type="basic", l_size=TRUE, expand=FALSE, device="png", units_i="cm"){
   cap_all <- ggplot2::ggplot_build(plot)
   ################ Auto Formatting Legends ###############
   plotAndPrintRatio <- function(g, width, height) {
     gGrob <- ggplot2::ggplotGrob(g)
     tmpfile <- tempfile(pattern = "png")
-    png(tmpfile, width = width, height = height, units="cm", res=300) # it is necessary to open a device
+    png(tmpfile, width = width, height = height, units=units_i, res=300) # it is necessary to open a device
     plot(g)
     legendSize <- as.numeric(grid::convertWidth(grid::grobWidth(gGrob$grobs[[15]]), unitTo = "inches"))
     plotSize <-   as.numeric(grid::convertWidth(grid::grobWidth(gGrob$grobs[[7]]), unitTo = "inches"))
@@ -244,14 +244,14 @@ save_inews <- function(filename, plot=last_plot(), width_i = 15, height_i = 10, 
         coord_cartesian(expand = FALSE)
   }
   if(device == "png"){
-    ggsave(filename, plot, dpi = 300, type = "cairo", width = width_i, height = height_i, units = "cm", limitsize = l_size)
+    ggsave(filename, plot, dpi = 300, type = "cairo", width = width_i, height = height_i, units = units_i, limitsize = l_size)
   }
   if(device == "eps"){
-    ggsave(filename, plot, dpi = 300, device=cairo_ps, width = width_i, height = height_i, units = "cm", limitsize = l_size)
+    ggsave(filename, plot, dpi = 300, device=cairo_ps, width = width_i, height = height_i, units = units_i, limitsize = l_size)
 
   }
   if(device == "svg"){
-    ggsave(filename, plot, dpi = 300, device=svg, width = width_i, height = height_i, units = "cm", limitsize = l_size)
+    ggsave(filename, plot, dpi = 300, device=svg, width = width_i, height = height_i, units = units_i, limitsize = l_size)
   }
 }
 
