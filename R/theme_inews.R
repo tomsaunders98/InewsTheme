@@ -9,7 +9,7 @@ library(paletteer)
 
 #' Rolling Average
 #' @param n The number of days to execute rolling average over
-ra <- function(x, n = 7){stats::filter(x, rep(1 / n, n), sides = 2)}
+ra <- function(x, n = 7){stats::filter(x, rep(1 / n, n), sides = 1)}
 
 #' Inews Pallette
 inews_pal <- function() {
@@ -146,6 +146,7 @@ theme_inews_map <- function(base_size = 25, base_family="", fill="White"){
     theme(
       #Format legend
       legend.title = element_blank(),
+      plot.background = element_rect(fill = f_val, colour=NA),
       legend.position = "top",
       legend.direction = "horizontal",
       legend.key.height = unit(2, "lines"),
