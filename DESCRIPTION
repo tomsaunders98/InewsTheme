@@ -13,7 +13,10 @@ Imports:
   stats,
   ggrepel,
   classInt,
-  paletteer
+  paletteer,
+  ggtext,
+  directlabels,
+  stringr
 Maintainer: The package maintainer <yourself@somewhere.net>
 Description: ggplot intergrated theme for Inews website
 Encoding: UTF-8
