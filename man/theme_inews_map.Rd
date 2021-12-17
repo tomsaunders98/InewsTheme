@@ -4,12 +4,21 @@
 \alias{theme_inews_map}
 \title{Inews map theme}
 \usage{
-theme_inews_map(base_size = 25, base_family = "", fill = "White")
+theme_inews_map(
+  base_size = 25,
+  base_family = "",
+  fill = "White",
+  discrete = FALSE
+)
 }
 \arguments{
 \item{base_size}{Basic size of graph, defaults to 25}
 
 \item{base_family}{base font family, not implemented}
+
+\item{fill}{Enables invisible, sea-esq, grey or white backgrounds to maps}
+
+\item{direcrete}{boolean determines size of legend if variable is discrete}
 }
 \description{
 Inews map theme

@@ -7,11 +7,11 @@
 save_inews(
   filename,
   plot = last_plot(),
-  width_i = 15,
-  height_i = 10,
+  width = 15,
+  height = 11,
   type = "basic",
-  l_size = TRUE,
-  expand = FALSE
+  units = "cm",
+  labs = "none"
 )
 }
 \arguments{
@@ -19,13 +19,15 @@ save_inews(
 
 \item{plot}{The plot to render, defaults to last plot}
 
-\item{width_i}{Specified width in cm, defaults to 15}
+\item{width}{Specified width in cm, defaults to 15}
 
-\item{height_i}{Specified height in cm, defaults to 10}
+\item{height}{Specified height in cm, defaults to 11}
 
-\item{type}{Adds presets for maps/parls and other types to render}
+\item{type}{Adds presets for different graph types or different places on website}
 
-\item{l_size}{Enables to turn off limiting size}
+\item{units}{Specift units for width and height}
+
+\item{labs}{If labels are present, increases width and turns clipping off}
 }
 \description{
 Save plots (ggsave wrapper)

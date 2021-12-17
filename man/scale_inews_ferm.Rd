@@ -2,29 +2,28 @@
 % Please edit documentation in R/theme_inews.R
 \name{scale_inews_ferm}
 \alias{scale_inews_ferm}
-\title{Binned scale (scale_fill_fermenter wrapper with better gradients)}
+\title{Fermenter scale for maps}
 \usage{
 scale_inews_ferm(
-  breaks,
-  db = F,
-  n = 5,
+  palette = palette,
+  breaks = breaks,
   direction = 1,
-  style = "pretty",
-  palette = "red_blue",
-  na.value = "grey50",
-  guide = "coloursteps",
+  labels = waiver(),
+  na.value = "#DCDCDC",
   ...
 )
 }
 \arguments{
-\item{n}{number of breaks (if not direct)}
+\item{palette}{palette string from inews_pal}
 
-\item{direction}{whether to reverse palette}
+\item{direction}{direction of palette, passed to inews_pal}
 
-\item{style}{to be passed on to classInt}
+\item{labels}{add labels if % etc.}
 
-\item{palette}{palette to go to get_inews_scale}
+\item{na.value}{Na value, defaults to light grey}
+
+\item{break}{must be specified, determines when to break map distitions}
 }
 \description{
-Binned scale (scale_fill_fermenter wrapper with better gradients)
+Fermenter scale for maps
 }

@@ -4,7 +4,14 @@
 \alias{inews_pal}
 \title{Inews Pallette}
 \usage{
-inews_pal()
+inews_pal(palette = "qual", length = NA, direction = 1)
+}
+\arguments{
+\item{palette}{A collection of different palettes, along with discrete palette to be used easily with scale_inews_ferm()}
+
+\item{length}{the number of colours for the palette, passed automatically from break length}
+
+\item{direction}{The direction of palette, passed from scale_inews_ferm}
 }
 \description{
 Inews Pallette

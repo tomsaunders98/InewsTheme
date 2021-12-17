@@ -46,6 +46,7 @@ library(rcartocolor)
 
 #' Inews labelling
 #' @label passes aes to directlabels to allow for quicker line labelling
+#' @export
 labels_inews <- function(label){
   directlabels::geom_dl(aes(label = {{label}}), method = list(directlabels::dl.trans(x = x + 0.2), cex=0.6, fontfamily = "Stag", "last.points"))
 }
@@ -54,12 +55,14 @@ labels_inews <- function(label){
 
 #' Rolling Average
 #' @param n The number of days to execute rolling average over
+#' @export
 ra <- function(x, n = 7){stats::filter(x, rep(1 / n, n), sides = 1)}
 
 #' Inews Pallette
 #' @param palette A collection of different palettes, along with discrete palette to be used easily with scale_inews_ferm()
 #' @param length the number of colours for the palette, passed automatically from break length
 #' @param direction The direction of palette, passed from scale_inews_ferm
+#' @export
 inews_pal <- function(palette = "qual", length = NA, direction = 1) {
   if (palette == "qual"){
     values <- c("#E35D3B","#5c909d","#f88379","#4EBA60","#F29F05","#03A6A6","#D35F9F", "#8EC720",  "#ee7800", "#0388a6", "#856eb4",  "#368F1B")
@@ -85,11 +88,13 @@ inews_pal <- function(palette = "qual", length = NA, direction = 1) {
 }
 
 #'Inews Colour scale
+#' @export
 scale_colour_inews <- function(...) {
   discrete_scale("colour", "inews", inews_pal(), ...)
 }
 
 #'Inews fill scale
+#' @export
 scale_fill_inews <- function(...) {
   discrete_scale("fill", "inews", inews_pal(), ...)
 }
@@ -101,6 +106,7 @@ scale_fill_inews <- function(...) {
 #' @param base_size Basic size of graph, defaults to 25
 #' @param base_family base font family, not implemented
 #' @param fill Enables invisible PNG background as well as grey/white background
+#' @export
 theme_inews <- function(base_size = 25, base_family="", fill="white") {
   if(fill == "none") {
     f_val = NA
@@ -171,6 +177,7 @@ theme_inews <- function(base_size = 25, base_family="", fill="white") {
 #' @param direcrete boolean determines size of legend if variable is discrete
 #' @param base_size Basic size of graph, defaults to 25
 #' @param base_family base font family, not implemented
+#' @export
 theme_inews_map <- function(base_size = 25, base_family="", fill="White", discrete = FALSE){
   if(fill == "none"){
     f_val = NA
@@ -223,6 +230,7 @@ theme_inews_map <- function(base_size = 25, base_family="", fill="White", discre
 #' @param units Specift units for width and height
 #' @param type Adds presets for different graph types or different places on website
 #' @param labs If labels are present, increases width and turns clipping off
+#' @export
 save_inews <- function(filename, plot=last_plot(), width = 15, height = 11, type="basic", units="cm", labs="none"){
 
   ## Adding label space
@@ -329,6 +337,7 @@ guide_coloursteps_inews <- function(even.steps = TRUE, show.limits = NULL, ticks
 #' @param direction direction of palette, passed to inews_pal
 #' @param labels add labels if % etc.
 #' @param na.value Na value, defaults to light grey
+#' @export
 scale_inews_ferm <- function(palette = palette, breaks = breaks, direction = 1, labels = waiver(), na.value = "#DCDCDC", ...){
   # Retrieve palette
   length = length(breaks) + 1
