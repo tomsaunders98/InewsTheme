@@ -6,17 +6,18 @@ Authors@R: person("Tom", "Saunders", email = "thomas.saunders@inews.co.uk",
                   role = c("aut", "cre"))
 Imports:
   ggplot2 (>= 3.0.0),
-  grid,
-  extrafont,
   scales,
-  Cairo,
   stats,
-  ggrepel,
   classInt,
-  paletteer,
   ggtext,
   directlabels,
-  stringr
+  stringr,
+  ragg,
+  systemfonts,
+  svglite,
+  Cairo,
+  RColorBrewer,
+  rcartocolor
 Maintainer: The package maintainer <yourself@somewhere.net>
 Description: ggplot intergrated theme for Inews website
 Encoding: UTF-8

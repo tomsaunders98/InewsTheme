@@ -1,26 +1,53 @@
-library(grid)
-library(extrafont)
 library(scales)
-library(Cairo)
 library(stats)
 library(ggplot2)
-library(ggrepel)
-library(paletteer)
 library(ggtext)
 library(directlabels)
 library(stringr)
+library(systemfonts)
+library(ragg)
+library(svglite)
+library(RColorBrewer)
+library(rcartocolor)
 
+#' Simple preloaded functions
+#' Updates ggplot defaults +  imports relevant fonts to registry + sets helpful global variables
 .onLoad <- function(libname, pkgname) {
   # to show a startup message
-  ggplot2::update_geom_defaults("text", list(family = "St Ryde", colour="#898c89", size = 0.8))
-  ggplot2::update_geom_defaults("label", list(family = "St Ryde", colour="#898c89", size = 0.8))
-  ggplot2::update_geom_defaults("line", list(colour="#E33A11"))
-  #font_import(prompt = FALSE, pattern = "Bitter|Stryde")
-  extrafont::loadfonts(device = "win", quiet = TRUE)
+  library(magrittr)
+  library(directlabels)
+  ggplot2::update_geom_defaults("text", list(family = "ArialMT", colour="#898c89", size = 0.8))
+  ggplot2::update_geom_defaults("label", list(family = "ArialMT", colour="#898c89", size = 0.8))
+  ggplot2::update_geom_defaults("line", list(colour="#E35D3B"))
+  ggplot2::update_geom_defaults("col", list(fill="#E35D3B"))
+  ggplot2::update_geom_defaults("sf", list(colour="#ffffff", size=0.1))
+  #North Pole Lambert Azimuthal Equal Area projection
+  lambert <<- "+proj=laea +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m no_defs"
+
+  ## Loading in fonts
+  c_fonts <- as.data.frame(systemfonts::registry_fonts()) %>%
+    dplyr::filter(stringr::str_detect(family, "Bitter|Arial"))
+
+  if(nrow(c_fonts) == 0){
+    all_fonts <- as.data.frame(systemfonts::system_fonts()) %>%
+      dplyr::filter(family %in% c("Bitter", "Arial") & !(stringr::str_detect(path, "AppData")))
+
+    for (x in 1:nrow(all_fonts)) {
+      if (all_fonts[x, "name"] != all_fonts[x, "family"]){
+        systemfonts::register_font(
+          name = all_fonts[x, "name"],
+          plain = all_fonts[x, "path"]
+        )
+      }
+    }
+  }
 }
 
-inews_lab <- function(label, size=0.6, gap = 0.2){
-  directlabels::geom_dl(aes(label = {{label}}), method = list(dl.trans(x = x + 0.2), cex=size, fontfamily = "Stag", "last.points"))
+
+#' Inews labelling
+#' @label passes aes to directlabels to allow for quicker line labelling
+labels_inews <- function(label){
+  directlabels::geom_dl(aes(label = {{label}}), method = list(directlabels::dl.trans(x = x + 0.2), cex=0.6, fontfamily = "Stag", "last.points"))
 }
 
 
@@ -30,8 +57,27 @@ inews_lab <- function(label, size=0.6, gap = 0.2){
 ra <- function(x, n = 7){stats::filter(x, rep(1 / n, n), sides = 1)}
 
 #' Inews Pallette
-inews_pal <- function() {
-  values <- c("#E33A11","#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#fdbf6f","#cab2d6","#6a3d9a",  "#b15928", "#c6c623")
+#' @param palette A collection of different palettes, along with discrete palette to be used easily with scale_inews_ferm()
+#' @param length the number of colours for the palette, passed automatically from break length
+#' @param direction The direction of palette, passed from scale_inews_ferm
+inews_pal <- function(palette = "qual", length = NA, direction = 1) {
+  if (palette == "qual"){
+    values <- c("#E35D3B","#5c909d","#f88379","#4EBA60","#F29F05","#03A6A6","#D35F9F", "#8EC720",  "#ee7800", "#0388a6", "#856eb4",  "#368F1B")
+  } else if (palette == "seq_good"){
+    values <- RColorBrewer::brewer.pal(length, "PuBu")
+  } else if (palette == "seq_bad"){
+    values <- RColorBrewer::brewer.pal(length, "OrRd")
+  } else if (palette == "diverg"){
+    values <- RColorBrewer::brewer.pal(length, "RdBu")
+    values <- replace(values, values=="#F7F7F7", "#f8f6e9") ## Get rid of ugly white in middle,
+  } else if (palette == "mint") {
+    values <- rcartocolor::carto_pal(length, "Mint")
+  } else if (palette == "teal") {
+    values <- rcartocolor::carto_pal(length, "Teal")
+  }
+  if(direction == -1){
+    values <- rev(values)
+  }
   max_n <- length(values)
   f <- scales::manual_pal(values)
   attr(f, "max_n") <- max_n
@@ -51,11 +97,11 @@ scale_fill_inews <- function(...) {
 
 
 
-#' Inews basic theme
-#'
+#' Inews main theme
 #' @param base_size Basic size of graph, defaults to 25
 #' @param base_family base font family, not implemented
-theme_inews_basic <- function(base_size = 25, base_family="", fill="white") {
+#' @param fill Enables invisible PNG background as well as grey/white background
+theme_inews <- function(base_size = 25, base_family="", fill="white") {
   if(fill == "none") {
     f_val = NA
   }else if (fill == "grey"){
@@ -63,12 +109,13 @@ theme_inews_basic <- function(base_size = 25, base_family="", fill="white") {
   }else{
     f_val = "#ffffff"
   }
+
   theme_minimal(base_size = base_size, base_family = base_family) %+replace%
     theme(
       #Plot/general
-
-      plot.margin = margin(t = 10,r = 10, b = 10,l =10, unit = "pt"),
+      plot.margin = margin(t = 10, b = 10, unit = "pt"),
       plot.background = element_rect(fill = f_val, colour=NA),
+
       #Format Legend
       legend.title=element_blank(),
       legend.position = "top",
@@ -81,30 +128,35 @@ theme_inews_basic <- function(base_size = 25, base_family="", fill="white") {
       legend.margin = margin(t = 0,r = 0, b = 0,l =0, unit = "pt"),
       legend.box.margin = margin(t = 5,r = 0, b = 0,l =0, unit = "pt"),
       legend.box.spacing = unit(4, "points"),
-      legend.text = element_text(size = rel(0.6)),
+      legend.text = element_text(size = rel(0.6), colour = "#000000", family="Arial-BoldMT"),
 
 
       #Formatting axis
       axis.title = element_blank(),
-      axis.text = element_text(size = rel(0.7), margin=margin(0,0,0,0, unit="pt"), family = "Stag"),
-      axis.ticks = element_line(size = rel(0.7), colour = "#878787"),
+      axis.text = element_text(size = rel(0.6), hjust=0, family = "Arial-BoldMT"),
+      axis.text.x = element_text(margin = margin(t=1, unit = "pt")),
+      axis.ticks = element_line(size = rel(0.3), colour = "#878787"),
       axis.ticks.y = element_blank(),
-      axis.ticks.length = unit(5, "points"),
-      axis.line = element_line(colour = "#878787", size = rel(0.5)),
+      axis.ticks.length = unit(3, "points"),
+      axis.line = element_line(colour = "#878787", size = rel(0.3)),
       axis.line.y = ggplot2::element_blank(),
 
-      #Format backgrounds + panels
+      #Format panels
       panel.background = element_rect(linetype = 0, fill=f_val),
       panel.border = element_blank(),
-      panel.grid.major = element_line(colour = "#e0e1e2", size = rel(0.5)),
+      panel.grid.major = element_line(colour = "#e0e1e2", size = rel(0.3)),
       panel.grid.major.x = element_blank(),
       panel.grid.minor = element_blank(),
 
+      ##Facet text format
+      strip.text.x = element_text(size = rel(0.8), colour = "#000000", family = "Bitter-SemiBold", hjust = 0.5),
+      strip.text.y = element_blank(),
+
       #formatting text
-      plot.title = element_text(size = rel(2), colour = "#000000", family = "Bitter Black", hjust = 0.5),
-      text = element_text(size=rel(1), family="Stag", colour = "#898a8c"),
-      plot.subtitle = element_text(size = rel(0.8), colour = "#9C9C9C", family="Bitter Regular", hjust=0.5, margin=margin(t=8, b=5, unit="pt")),
-      plot.caption = ggtext::element_markdown(family="Stag", colour = "#898a8c", size = rel(0.5), hjust = 0, margin=margin(t=5, unit="pt")),
+      plot.title = element_text(size = rel(2), colour = "#000000", family = "Bitter-Black", hjust = 0.5),
+      text = element_text(size=rel(1), family="Arial-BoldMT", colour = "#898a8c"),
+      plot.subtitle = element_text(size = rel(1), colour = "#9C9C9C", family="Bitter-Regular", hjust=0.5, margin=margin(t=8, b=5, unit="pt")),
+      plot.caption = ggtext::element_markdown(family="ArialMT", colour = "#898a8c", size = rel(0.5), hjust = 0, margin=margin(t=5, unit="pt")),
       complete = TRUE
     )
 
@@ -112,75 +164,66 @@ theme_inews_basic <- function(base_size = 25, base_family="", fill="white") {
 
 
 
-theme_inews_facet <- function(base_size = 25, base_family="") {
-  theme_inews_basic(base_size = base_size, base_family = base_family) %+replace%
-    theme(
-      plot.title = element_text(hjust = 0.5),
-      plot.subtitle = element_text(hjust=0.5)
-    )
-}
 
 
 #' Inews map theme
-#'
+#' @param fill Enables invisible, sea-esq, grey or white backgrounds to maps
+#' @param direcrete boolean determines size of legend if variable is discrete
 #' @param base_size Basic size of graph, defaults to 25
 #' @param base_family base font family, not implemented
-theme_inews_map <- function(base_size = 25, base_family="", fill="White"){
-  if(fill == "White"){
+theme_inews_map <- function(base_size = 25, base_family="", fill="White", discrete = FALSE){
+  if(fill == "none"){
+    f_val = NA
+  }else if(fill == "grey") {
+    f_val = "#f0f0f0"
+  } else if (fill == "sea") {
+    f_val = "#afdef2"
+  } else{
     f_val = "#ffffff"
   }
-  if(fill == "Grey") {
-    f_val = "#f0f0f0"
+  if(discrete == TRUE){
+    l_width = 1
+  } else{
+    l_width = 5
   }
   theme_void(base_size = 25, base_family = "") %+replace%
     theme(
       #Format legend
       legend.title = element_blank(),
-      plot.background = element_rect(fill = f_val, colour=NA),
+
       legend.position = "top",
-      legend.direction = "horizontal",
-      legend.key.height = unit(2, "lines"),
-      legend.key.width = unit(3, "lines"),
       legend.justification = "left",
-      legend.box.margin = margin(t = 10, unit = "pt"),
+      legend.direction = "horizontal",
+      legend.key.height = unit(1, "lines"),
+      legend.key.width = unit(l_width, "lines"),
+      legend.box.margin = margin(t = 10,unit = "pt"),
       legend.spacing = unit(0, "points"),
       legend.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
-      legend.box.spacing = unit(4, "points"),
-      legend.text = element_text(size = rel(0.9)),
+      legend.box.spacing = unit(1, unit = "pt"),
+      legend.text = element_text(size = rel(0.9), colour = "#000000", family="Arial-BoldMT"),
+
+      #Format plot
+      plot.margin = margin(t = 10,b = 10,unit = "pt"),
+      plot.background = element_rect(fill = f_val, colour=NA),
 
       #Format text elements
-      plot.title = element_text(size = rel(2), colour = "#000000", family = "Bitter", face = "bold",  hjust = 0),
-      text = element_text(size = rel(1), family = "Bitter", colour = "#898a8c"),
-      plot.subtitle = element_text(size = rel(1.3), colour = "#525354", family = "Bitter", hjust = 0, margin=margin(t=5)),
-      plot.caption = element_markdown(family = "Bitter", colour = "#898a8c", size = rel(1), hjust = 0),
-
-      #Add small margin
-      plot.margin = margin(t = 10,r = 10, b = 10,l =10, unit = "pt")
+      plot.title = element_text(size = rel(3.5), colour = "#000000", family = "Bitter-Black", hjust = 0),
+      text = element_text(size=rel(1), family="Arial-BoldMT", colour = "#898a8c"),
+      plot.subtitle = element_text(size = rel(1.5), colour = "#9C9C9C", family="Bitter-Regular", hjust=0, margin=margin(t=8, b=5, unit="pt")),
+      plot.caption = ggtext::element_markdown(family="ArialMT", colour = "#898a8c", size = rel(1), hjust = 1, margin=margin(t=5, unit="pt")),
+      complete = TRUE
     )
 }
 
 #' Save plots (ggsave wrapper)
 #' @param filename The filename specified
 #' @param plot The plot to render, defaults to last plot
-#' @param width_i Specified width in cm, defaults to 15
-#' @param height_i Specified height in cm, defaults to 10
-#' @param type Adds presets for maps/parls and other types to render
-#' @param l_size Enables to turn off limiting size
+#' @param width Specified width in cm, defaults to 15
+#' @param height Specified height in cm, defaults to 11
+#' @param units Specift units for width and height
+#' @param type Adds presets for different graph types or different places on website
+#' @param labs If labels are present, increases width and turns clipping off
 save_inews <- function(filename, plot=last_plot(), width = 15, height = 11, type="basic", units="cm", labs="none"){
-  cap_all <- ggplot2::ggplot_build(plot)
-
-
-  ## Presets for different graph types
-  if (type == "map"){
-    height_i = 25
-    width_i = 25
-
-  } else if (type == "parl"){
-    height_i= 20
-    width_i = 20
-  }
-
-
 
   ## Adding label space
   if(labs != "none" & is.numeric(labs)){
@@ -190,86 +233,118 @@ save_inews <- function(filename, plot=last_plot(), width = 15, height = 11, type
         plot.margin = margin(r = labs, unit = "cm")
         )
     width = width + (labs - 1)
-  }
-
-
-
-
-  # Add copyright
-
-  cap <-  cap_all[[3]][[9]]$caption
-  newcap <- paste(cap, "<br>By Tom Saunders <span style='font-family:Arial'> · ©</span><span style='font-family:Bitter; color:#E33A11;'><b> i</b></span> ", sep="")
-  plot <- plot +
-    labs(caption = newcap)
-
-
-
-  # Remove clipping if default coords
-  if (plot$coordinates$default == T) {
     plot <- plot +
       coord_cartesian(clip = 'off')
   }
 
+  ## Presets for different graph types
+  if (type == "map"){
+    height = 18
+    width = 25
+  } else if (type == "facet"){
+    height = 20
+  } else if (type == "fimage"){
+    units = "px"
+    height = 360
+    width = 640
+    ## Change the  text size
+    plot <- plot +
+      theme(
+        legend.text = element_text(size = rel(0.7)),
+        axis.text = element_text(size = rel(0.7)),
+        plot.title = element_text(size = rel(2)),
+        text = element_text(size=rel(2)),
+        plot.subtitle = element_text(size = rel(0.8)),
+        plot.caption = ggtext::element_markdown(size = rel(0.4)),
+      )
+  } else if (type == "box"){
+    units = "px"
+    height = 800
+    width = 1440
+    ## Change the  text size
+    plot <- plot +
+      theme(
+        legend.text = element_text(size = rel(1.2)),
+        axis.text = element_text(size = rel(1.2)),
+        plot.title = element_text(size = rel(4)),
+        text = element_text(size=rel(2)),
+        plot.subtitle = element_text(size = rel(2)),
+        plot.caption = ggtext::element_markdown(size = rel(1)),
+      )
+  } else if (type == "fimage_map"){
+    units = "px"
+    height = 360
+    width = 640
+    ## Change the  text size
+    plot <- plot +
+      theme(
+        legend.text = element_text(size = rel(0.5)),
+        plot.title = element_text(size = rel(2), hjust=0.5),
+        text = element_text(size=rel(2)),
+        plot.subtitle = element_text(size = rel(0.8), hjust=0.5),
+        legend.justification = "center",
+        plot.caption = ggtext::element_markdown(size = rel(0.4)),
+        legend.key.width = unit(3, "lines"),
+      )
+  }
+
+  # Add copyright
+  if(!(type %in% c("box", "fimage", "fimage_map"))){
+    cap_all <- ggplot2::ggplot_build(plot)
+    cap <-  cap_all[[3]][[9]]$caption
+    newcap <- paste(cap, "<br>By Tom Saunders <span style='font-family:Arial'> · ©</span><span style='font-family:Bitter; color:#E33A11;'><b> i</b></span> ", sep="")
+    plot <- plot +
+      labs(caption = newcap)
+  }
+
+
   # Set device from filename
   device = stringr::str_extract(filename, "(?<=\\.).+")
-
-
-
-
-
-
-  if(device == "png"){
-    ggsave(filename, plot, dpi = 300, type = "cairo", width = width, height = height, units = units, limitsize = FALSE)
+  if (!(device %in% c("svg", "png"))) {
+    return(message("Only svg or png"))
   }
-  if(device == "eps"){
-    ggsave(filename, plot, dpi = 300, device=cairo_ps, width = width, height = height, units = units, limitsize = FALSE)
 
+  ## Render graph
+  if(device == "png"){
+      ggsave(filename, plot, device = ragg::agg_png(width = width, height = height, units = units), limitsize = FALSE)
   }
   if(device == "svg"){
-    ggsave(filename, plot, dpi = 300, device=svg, width = width, height = height, units = units, limitsize = FALSE)
+    ggsave(filename, plot, dpi = 300, width = width, height = height, units = units, limitsize = FALSE)
   }
 }
 
 
-#' Update ggplot defaults for text etc. to Inews
+#' Internal function to enable raster on coloursteps, seemingly not possible natively in ggplot2
+guide_coloursteps_inews <- function(even.steps = TRUE, show.limits = NULL, ticks = FALSE, ...) {
+  guide <- ggplot2::guide_colourbar(raster = TRUE, ticks = ticks,  ...)
+  guide$even.steps <- even.steps
+  guide$show.limits <- show.limits
+  class(guide) <- c('colorsteps', class(guide))
+  guide
+}
 
+#' Fermenter scale for maps
+#' @param palette palette string from inews_pal
+#' @param break must be specified, determines when to break map distitions
+#' @param direction direction of palette, passed to inews_pal
+#' @param labels add labels if % etc.
+#' @param na.value Na value, defaults to light grey
+scale_inews_ferm <- function(palette = palette, breaks = breaks, direction = 1, labels = waiver(), na.value = "#DCDCDC", ...){
+  # Retrieve palette
+  length = length(breaks) + 1
+  colours <- inews_pal(palette, length = length, direction)
 
-
-
-
-#' Binned scale (scale_fill_fermenter wrapper with better gradients)
-#' @breaks Either values to turn into breaks or custom breaks
-#' @palette paleteer pallette
-#' @direction Direction of colours
-scale_inews_ferm <- function(palette = palette,breaks = breaks, direction= 1,type="discrete",labels = NA, na.value = "grey50", ...){
-  if(type == "discrete"){
-    colours <- as.vector(paletteer::paletteer_d(palette, length(breaks)+1))
-  }
-  if(type == "continuous"){
-    colours <- as.vector(paletteer::paletteer_c(palette, length(breaks)+1))
-  }
-  if(direction == -1){
-    colours <- rev(colours)
-  }
-  if(is.na(labels)){
-    binned_scale("fill",
-                 "foo",
-                 ggplot2:::binned_pal(scales::manual_pal(colours)),
-                 guide="coloursteps",
-                 breaks = breaks,
-                 na.value = na.value
-    )
-  }else{
-    binned_scale("fill",
-                 "foo",
-                 ggplot2:::binned_pal(scales::manual_pal(colours)),
-                 guide="coloursteps",
-                 breaks = breaks,
-                 na.value = na.value,
-                 labels = labels
-    )
-  }
-
+  binned_scale("fill",
+               "foo",
+               ggplot2:::binned_pal(colours),
+               guide=guide_coloursteps_inews(
+                     even.steps = FALSE,
+                     show.limits = FALSE
+                   ),
+               breaks = breaks,
+               na.value = na.value,
+               labels = labels
+  )
 }
 
 
