@@ -45,7 +45,8 @@ library(rcartocolor)
 
 
 #' Inews labelling
-#' @label passes aes to directlabels to allow for quicker line labelling
+#' @param label passes aes to directlabels to allow for quicker line labelling
+#' @param size allows to increase size of labels
 #' @export
 labels_inews <- function(label, size = 0.6){
   directlabels::geom_dl(aes(label = {{label}}), method = list(directlabels::dl.trans(x = x + 0.2), cex=size, fontfamily = "ArialMT", "last.points"))
