@@ -16,8 +16,8 @@ library(rcartocolor)
   # to show a startup message
   library(magrittr)
   library(directlabels)
-  ggplot2::update_geom_defaults("text", list(family = "Rubik-SemiBold", colour="#898c89", size = 0.8))
-  ggplot2::update_geom_defaults("label", list(family = "Rubik-SemiBold", colour="#898c89", size = 0.8))
+  ggplot2::update_geom_defaults("text", list(family = "Rubik-SemiBold", colour="#000000", size = 2.5))
+  ggplot2::update_geom_defaults("label", list(family = "Rubik-SemiBold", colour="#000000", size = 2.5))
   ggplot2::update_geom_defaults("line", list(colour="#E35D3B"))
   ggplot2::update_geom_defaults("col", list(fill="#E35D3B"))
   ggplot2::update_geom_defaults("sf", list(colour="#ffffff", size=0.1))
@@ -47,9 +47,16 @@ library(rcartocolor)
 #' Inews labelling
 #' @param label passes aes to directlabels to allow for quicker line labelling
 #' @param size allows to increase size of labels
+#' @param type Horizontal labels for bar charts, vertical for lines
 #' @export
-labels_inews <- function(label, size = 0.6){
-  directlabels::geom_dl(aes(label = {{label}}), method = list(directlabels::dl.trans(x = x + 0.2), cex=size, fontfamily = "Rubik-Regular", "last.points"))
+labels_inews <- function(label, size = 0.6, type="line"){
+  if(type == "line"){
+    directlabels::geom_dl(aes(label = {{label}}), method = list(directlabels::dl.trans(x = x + 0.2), cex=size, fontfamily = "Rubik-Regular", "last.points"))
+
+  }
+  if(type == "bar"){
+    ggplot2::geom_text(aes(label = {{label}}), hjust=0)
+  }
 }
 
 
@@ -231,23 +238,20 @@ theme_inews_map <- function(base_size = 25, base_family="", fill="White", discre
 #' @param height Specified height in cm, defaults to 11
 #' @param units Specift units for width and height
 #' @param type Adds presets for different graph types or different places on website
-#' @param labs If labels are present, increases width and turns clipping off
+#' @param margin Add margins to plot
 #' @export
-save_inews <- function(filename, plot=last_plot(), width = 15, height = 11, type="basic", units="cm", labs="none"){
+save_inews <- function(filename, plot=last_plot(), width = 15, height = 11, type="basic", units="cm", margin="none"){
 
 
 
 
   ## Adding label space
-  if(labs != "none" & is.numeric(labs)){
+  if(margin != "none" & is.numeric(margin)){
     plot <- plot +
       theme(
-        legend.position = "none",
-        plot.margin = margin(r = labs, unit = "cm")
+        plot.margin = margin(r = margin, unit = "cm")
         )
-    width = width + (labs - 1)
-    plot <- plot +
-      coord_cartesian(clip = 'off')
+    width = width + (margin - 1)
   }
 
   ## Presets for different graph types

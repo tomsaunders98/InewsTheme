@@ -4,7 +4,14 @@
 \alias{labels_inews}
 \title{Inews labelling}
 \usage{
-labels_inews(label)
+labels_inews(label, size = 0.6, type = "line")
+}
+\arguments{
+\item{label}{passes aes to directlabels to allow for quicker line labelling}
+
+\item{size}{allows to increase size of labels}
+
+\item{type}{Horizontal labels for bar charts, vertical for lines}
 }
 \description{
 Inews labelling

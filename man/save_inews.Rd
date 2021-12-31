@@ -11,7 +11,7 @@ save_inews(
   height = 11,
   type = "basic",
   units = "cm",
-  labs = "none"
+  margin = "none"
 )
 }
 \arguments{
@@ -27,7 +27,7 @@ save_inews(
 
 \item{units}{Specift units for width and height}
 
-\item{labs}{If labels are present, increases width and turns clipping off}
+\item{margin}{Add margins to plot}
 }
 \description{
 Save plots (ggsave wrapper)
