@@ -50,12 +50,10 @@ library(rcartocolor)
 #' @param type Horizontal labels for bar charts, vertical for lines
 #' @export
 labels_inews <- function(label, size = 0.6, type="line"){
-  if(type == "line"){
-    directlabels::geom_dl(aes(label = {{label}}), method = list(directlabels::dl.trans(x = x + 0.2), cex=size, fontfamily = "Rubik-Regular", "last.points"))
-
-  }
   if(type == "bar"){
     ggplot2::geom_text(aes(label = {{label}}), hjust=0)
+  }else{
+    directlabels::geom_dl(aes(label = {{label}}), method = list(directlabels::dl.trans(x = x + 0.2), cex=size, fontfamily = "Rubik-Regular", "last.points"))
   }
 }
 
@@ -316,14 +314,16 @@ save_inews <- function(filename, plot=last_plot(), width = 15, height = 11, type
 
   ##Wrapping subtitle
   subtitle <- ggplot2::ggplot_build(plot)[[3]][[9]]$subtitle
-  if (units == "px"){
-    wrap_m <- 0.1
-  } else{
-    wrap_m <- 5
+  if (!is.null(subtitle)){
+    if (units == "px"){
+      wrap_m <- 0.1
+    } else{
+      wrap_m <- 5
+    }
+    new_sub <- stringr::str_wrap(subtitle, wrap_m*width)
+    plot <- plot +
+      labs(subtitle = new_sub)
   }
-  new_sub <- stringr::str_wrap(subtitle, wrap_m*width)
-  plot <- plot +
-    labs(subtitle = new_sub)
 
   # Set device from filename
   device = stringr::str_extract(filename, "(?<=\\.).+")
