@@ -16,8 +16,8 @@ library(rcartocolor)
   # to show a startup message
   library(magrittr)
   library(directlabels)
-  ggplot2::update_geom_defaults("text", list(family = "ArialMT", colour="#898c89", size = 0.8))
-  ggplot2::update_geom_defaults("label", list(family = "ArialMT", colour="#898c89", size = 0.8))
+  ggplot2::update_geom_defaults("text", list(family = "Rubik-SemiBold", colour="#898c89", size = 0.8))
+  ggplot2::update_geom_defaults("label", list(family = "Rubik-SemiBold", colour="#898c89", size = 0.8))
   ggplot2::update_geom_defaults("line", list(colour="#E35D3B"))
   ggplot2::update_geom_defaults("col", list(fill="#E35D3B"))
   ggplot2::update_geom_defaults("sf", list(colour="#ffffff", size=0.1))
@@ -26,11 +26,11 @@ library(rcartocolor)
 
   ## Loading in fonts
   c_fonts <- as.data.frame(systemfonts::registry_fonts()) %>%
-    dplyr::filter(stringr::str_detect(family, "Bitter|Arial"))
+    dplyr::filter(stringr::str_detect(family, "Bitter|Rubik"))
 
   if(nrow(c_fonts) == 0){
     all_fonts <- as.data.frame(systemfonts::system_fonts()) %>%
-      dplyr::filter(family %in% c("Bitter", "Arial") & !(stringr::str_detect(path, "AppData")))
+      dplyr::filter(family %in% c("Bitter", "Rubik") & !(stringr::str_detect(path, "AppData")))
 
     for (x in 1:nrow(all_fonts)) {
       if (all_fonts[x, "name"] != all_fonts[x, "family"]){
@@ -49,7 +49,7 @@ library(rcartocolor)
 #' @param size allows to increase size of labels
 #' @export
 labels_inews <- function(label, size = 0.6){
-  directlabels::geom_dl(aes(label = {{label}}), method = list(directlabels::dl.trans(x = x + 0.2), cex=size, fontfamily = "ArialMT", "last.points"))
+  directlabels::geom_dl(aes(label = {{label}}), method = list(directlabels::dl.trans(x = x + 0.2), cex=size, fontfamily = "Rubik-Regular", "last.points"))
 }
 
 
@@ -135,12 +135,12 @@ theme_inews <- function(base_size = 25, base_family="", fill="white") {
       legend.margin = margin(t = 0,r = 0, b = 0,l =0, unit = "pt"),
       legend.box.margin = margin(t = 5,r = 0, b = 0,l =0, unit = "pt"),
       legend.box.spacing = unit(4, "points"),
-      legend.text = element_text(size = rel(0.6), colour = "#000000", family="Arial-BoldMT"),
+      legend.text = element_text(size = rel(0.6), colour = "#000000", family="Rubik-SemiBold"),
 
 
       #Formatting axis
       axis.title = element_blank(),
-      axis.text = element_text(size = rel(0.6), hjust=0, family = "Arial-BoldMT"),
+      axis.text = element_text(size = rel(0.6), hjust=0, family = "Rubik-SemiBold"),
       axis.text.x = element_text(margin = margin(t=1, unit = "pt")),
       axis.ticks = element_line(size = rel(0.3), colour = "#878787"),
       axis.ticks.y = element_blank(),
@@ -161,9 +161,9 @@ theme_inews <- function(base_size = 25, base_family="", fill="white") {
 
       #formatting text
       plot.title = element_text(size = rel(2), colour = "#000000", family = "Bitter-Black", hjust = 0.5),
-      text = element_text(size=rel(1), family="Arial-BoldMT", colour = "#898a8c"),
+      text = element_text(size=rel(1), family="Rubik-SemiBold", colour = "#898a8c"),
       plot.subtitle = element_text(size = rel(1), colour = "#9C9C9C", family="Bitter-Regular", hjust=0.5, margin=margin(t=8, b=5, unit="pt")),
-      plot.caption = ggtext::element_markdown(family="ArialMT", colour = "#898a8c", size = rel(0.5), hjust = 0, margin=margin(t=5, unit="pt")),
+      plot.caption = ggtext::element_markdown(family="Rubik-Regular", colour = "#898a8c", size = rel(0.5), hjust = 0, margin=margin(t=5, unit="pt")),
       complete = TRUE
     )
 
@@ -200,7 +200,7 @@ theme_inews_map <- function(base_size = 25, base_family="", fill="White", discre
       legend.title = element_blank(),
 
       legend.position = "top",
-      legend.justification = "left",
+      legend.justification = "center",
       legend.direction = "horizontal",
       legend.key.height = unit(1, "lines"),
       legend.key.width = unit(l_width, "lines"),
@@ -208,17 +208,18 @@ theme_inews_map <- function(base_size = 25, base_family="", fill="White", discre
       legend.spacing = unit(0, "points"),
       legend.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
       legend.box.spacing = unit(1, unit = "pt"),
-      legend.text = element_text(size = rel(0.9), colour = "#000000", family="Arial-BoldMT"),
+      legend.text = element_text(size = rel(0.9), colour = "#000000", family="Rubik-SemiBold"),
 
       #Format plot
       plot.margin = margin(t = 10,b = 10,unit = "pt"),
       plot.background = element_rect(fill = f_val, colour=NA),
 
       #Format text elements
-      plot.title = element_text(size = rel(3.5), colour = "#000000", family = "Bitter-Black", hjust = 0),
-      text = element_text(size=rel(1), family="Arial-BoldMT", colour = "#898a8c"),
-      plot.subtitle = element_text(size = rel(1.5), colour = "#9C9C9C", family="Bitter-Regular", hjust=0, margin=margin(t=8, b=5, unit="pt")),
-      plot.caption = ggtext::element_markdown(family="ArialMT", colour = "#898a8c", size = rel(1), hjust = 1, margin=margin(t=5, unit="pt")),
+      plot.title.position = "panel",
+      plot.title = element_text(size = rel(3.5), colour = "#000000", family = "Bitter-Black", hjust = 0.5),
+      text = element_text(size=rel(1), family="Rubik-SemiBold", colour = "#898a8c"),
+      plot.subtitle = element_text(size = rel(1.5), colour = "#9C9C9C", family="Bitter-Regular", hjust=0.5, margin=margin(t=8, b=5, unit="pt")),
+      plot.caption = ggtext::element_markdown(family="Rubik-Regular", colour = "#898a8c", size = rel(1), hjust = 1, margin=margin(t=5, unit="pt")),
       complete = TRUE
     )
 }
@@ -233,6 +234,9 @@ theme_inews_map <- function(base_size = 25, base_family="", fill="White", discre
 #' @param labs If labels are present, increases width and turns clipping off
 #' @export
 save_inews <- function(filename, plot=last_plot(), width = 15, height = 11, type="basic", units="cm", labs="none"){
+
+
+
 
   ## Adding label space
   if(labs != "none" & is.numeric(labs)){
@@ -301,11 +305,21 @@ save_inews <- function(filename, plot=last_plot(), width = 15, height = 11, type
   if(!(type %in% c("box", "fimage", "fimage_map"))){
     cap_all <- ggplot2::ggplot_build(plot)
     cap <-  cap_all[[3]][[9]]$caption
-    newcap <- paste(cap, "<br>By Tom Saunders <span style='font-family:Arial'> · ©</span><span style='font-family:Bitter; color:#E33A11;'><b> i</b></span> ", sep="")
+    newcap <- paste(cap, "<br>By Tom Saunders <span style='font-family:Rubik'> · ©</span><span style='font-family:Bitter; color:#E33A11;'><b> i</b></span> ", sep="")
     plot <- plot +
       labs(caption = newcap)
   }
 
+  ##Wrapping subtitle
+  subtitle <- ggplot2::ggplot_build(plot)[[3]][[9]]$subtitle
+  if (units == "px"){
+    wrap_m <- 0.1
+  } else{
+    wrap_m <- 5
+  }
+  new_sub <- stringr::str_wrap(subtitle, wrap_m*width)
+  plot <- plot +
+    labs(subtitle = new_sub)
 
   # Set device from filename
   device = stringr::str_extract(filename, "(?<=\\.).+")
