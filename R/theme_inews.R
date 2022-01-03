@@ -65,25 +65,36 @@ labels_inews <- function(label, size = 0.6, type="line"){
 ra <- function(x, n = 7){stats::filter(x, rep(1 / n, n), sides = 1)}
 
 #' Inews Pallette
-#' @param palette A collection of different palettes, along with discrete palette to be used easily with scale_inews_ferm()
+#' @param palette A collection of different palettes, along with discrete palette to be used easily with scale_inews_ferm() + Colorbrewer/cartocolr palettes
 #' @param length the number of colours for the palette, passed automatically from break length
 #' @param direction The direction of palette, passed from scale_inews_ferm
 #' @export
 inews_pal <- function(palette = "qual", length = NA, direction = 1) {
-  if (palette == "qual"){
-    values <- c("#E35D3B","#5c909d","#f88379","#4EBA60","#F29F05","#03A6A6","#D35F9F", "#8EC720",  "#ee7800", "#0388a6", "#856eb4",  "#368F1B")
-  } else if (palette == "seq_good"){
-    values <- RColorBrewer::brewer.pal(length, "PuBu")
-  } else if (palette == "seq_bad"){
-    values <- RColorBrewer::brewer.pal(length, "OrRd")
-  } else if (palette == "diverg"){
-    values <- RColorBrewer::brewer.pal(length, "RdBu")
-    values <- replace(values, values=="#F7F7F7", "#f8f6e9") ## Get rid of ugly white in middle,
-  } else if (palette == "mint") {
-    values <- rcartocolor::carto_pal(length, "Mint")
-  } else if (palette == "teal") {
-    values <- rcartocolor::carto_pal(length, "Teal")
+  if(stringr::str_detect(palette, "::")){
+    lib <- stringr::str_extract(palette, ".+(?=::)")
+    pal <- stringr::str_extract(palette, "(?<=::).+")
+    if(lib == "RColorBrewer"){
+      values <- RColorBrewer::brewer.pal(length, pal)
+    } else if (lib == "rcartocolor"){
+      values <- rcartocolor::brewer.pal(length, pal)
+    }
+  } else{
+    if (palette == "qual"){
+      values <- c("#E35D3B","#5c909d","#f88379","#4EBA60","#F29F05","#03A6A6","#D35F9F", "#8EC720",  "#ee7800", "#0388a6", "#856eb4",  "#368F1B")
+    } else if (palette == "seq_good"){
+      values <- RColorBrewer::brewer.pal(length, "PuBu")
+    } else if (palette == "seq_bad"){
+      values <- RColorBrewer::brewer.pal(length, "OrRd")
+    } else if (palette == "diverg"){
+      values <- RColorBrewer::brewer.pal(length, "RdBu")
+      values <- replace(values, values=="#F7F7F7", "#f8f6e9") ## Get rid of ugly white in middle,
+    } else if (palette == "mint") {
+      values <- rcartocolor::carto_pal(length, "Mint")
+    } else if (palette == "teal") {
+      values <- rcartocolor::carto_pal(length, "Teal")
+    }
   }
+
   if(direction == -1){
     values <- rev(values)
   }
