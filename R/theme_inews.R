@@ -136,7 +136,7 @@ theme_inews <- function(base_size = 25, base_family="", fill="white") {
   theme_minimal(base_size = base_size, base_family = base_family) %+replace%
     theme(
       #Plot/general
-      plot.margin = margin(t = 10, b = 10, unit = "pt"),
+      plot.margin = margin(t = 10, b = 10, r = 10, unit = "pt"),
       plot.background = element_rect(fill = f_val, colour=NA),
 
       #Format Legend
