@@ -314,17 +314,18 @@ save_inews <- function(filename, plot=last_plot(), width = 15, height = 11, type
       )
   }
 
+  ##Build plot
+  built_plot <- ggplot2::ggplot_build(plot)
+
   # Add copyright
   if(!(type %in% c("box", "fimage", "fimage_map"))){
-    cap_all <- ggplot2::ggplot_build(plot)
-    cap <-  cap_all[[3]][[9]]$caption
+    cap <-  built_plot$plot$labels$caption
     newcap <- paste(cap, "<br>By Tom Saunders <span style='font-family:Rubik'> · ©</span><span style='font-family:Bitter; color:#E33A11;'><b> i</b></span> ", sep="")
-    plot <- plot +
-      labs(caption = newcap)
+    built_plot$plot$labels$caption = newcap
   }
 
   ##Wrapping subtitle
-  subtitle <- ggplot2::ggplot_build(plot)[[3]][[9]]$subtitle
+  subtitle <- built_plot$plot$labels$subtitle
   if (!is.null(subtitle)){
     if (units == "px"){
       wrap_m <- 0.1
@@ -332,8 +333,12 @@ save_inews <- function(filename, plot=last_plot(), width = 15, height = 11, type
       wrap_m <- 5
     }
     new_sub <- stringr::str_wrap(subtitle, wrap_m*width)
-    plot <- plot +
-      labs(subtitle = new_sub)
+    built_plot$plot$labels$subtitle = new_sub
+  }
+
+  ## Turn clipping off
+  if(built_plot$plot$coordinates$clip == "on"){
+    built_plot$plot$coordinates$clip = "off"
   }
 
   # Set device from filename
@@ -344,10 +349,10 @@ save_inews <- function(filename, plot=last_plot(), width = 15, height = 11, type
 
   ## Render graph
   if(device == "png"){
-      ggsave(filename, plot, device = ragg::agg_png(width = width, height = height, units = units), limitsize = FALSE)
+      ggsave(filename, built_plot, device = ragg::agg_png(width = width, height = height, units = units), limitsize = FALSE)
   }
   if(device == "svg"){
-    ggsave(filename, plot, dpi = 300, width = width, height = height, units = units, limitsize = FALSE)
+    ggsave(filename, built_plot, dpi = 300, width = width, height = height, units = units, limitsize = FALSE)
   }
 }
 
