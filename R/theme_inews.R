@@ -19,6 +19,7 @@ library(rcartocolor)
   ggplot2::update_geom_defaults("text", list(family = "Rubik-SemiBold", colour="#000000", size = 2.5))
   ggplot2::update_geom_defaults("label", list(family = "Rubik-SemiBold", colour="#000000", size = 2.5))
   ggplot2::update_geom_defaults("line", list(colour="#E35D3B"))
+  ggplot2::update_geom_defaults("point", list(colour="#E35D3B"))
   ggplot2::update_geom_defaults("col", list(fill="#E35D3B"))
   ggplot2::update_geom_defaults("sf", list(colour="#ffffff", size=0.1))
   #North Pole Lambert Azimuthal Equal Area projection
