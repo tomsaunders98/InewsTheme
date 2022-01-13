@@ -355,7 +355,7 @@ save_inews <- function(filename, plot=last_plot(), width = 15, height = 11, type
       ggsave(filename, plot, device = ragg::agg_png(width = width, height = height, units = units), limitsize = FALSE)
   }
   if(device == "svg"){
-    ggsave(filename, plot, dpi = 300, width = width, height = height, units = units, limitsize = FALSE)
+    ggsave(filename, plot, dpi = 300, device="svg", fix_text_size = F, width = width, height = height, units = units, limitsize = FALSE)
   }
 }
 
