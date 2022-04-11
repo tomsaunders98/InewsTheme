@@ -32,6 +32,9 @@ library(rcartocolor)
   if(nrow(c_fonts) == 0){
     all_fonts <- as.data.frame(systemfonts::system_fonts()) %>%
       dplyr::filter(family %in% c("Bitter", "Rubik") & !(stringr::str_detect(path, "AppData")))
+    if(nrow(all_fonts) == 0) {
+      message("Install Bitter and Rubik fonts")
+    }
 
     for (x in 1:nrow(all_fonts)) {
       if (all_fonts[x, "name"] != all_fonts[x, "family"]){
@@ -70,14 +73,14 @@ ra <- function(x, n = 7){stats::filter(x, rep(1 / n, n), sides = 1)}
 #' @param length the number of colours for the palette, passed automatically from break length
 #' @param direction The direction of palette, passed from scale_inews_ferm
 #' @export
-inews_pal <- function(palette = "qual", length = NA, direction = 1) {
-  if(stringr::str_detect(palette, "::")){
-    lib <- stringr::str_extract(palette, ".+(?=::)")
-    pal <- stringr::str_extract(palette, "(?<=::).+")
+inews_pal <- function(palette = "diverg", length = NA, direction = 1) {
+  if(stringr::str_detect(palette, ">>")){
+    lib <- stringr::str_extract(palette, ".+(?=>>)")
+    pal <- stringr::str_extract(palette, "(?<=>>).+")
     if(lib == "RColorBrewer"){
       values <- RColorBrewer::brewer.pal(length, pal)
     } else if (lib == "rcartocolor"){
-      values <- rcartocolor::brewer.pal(length, pal)
+      values <- rcartocolor::carto_pal(length, pal)
     }
   } else{
     if (palette == "qual"){
@@ -93,6 +96,8 @@ inews_pal <- function(palette = "qual", length = NA, direction = 1) {
       values <- rcartocolor::carto_pal(length, "Mint")
     } else if (palette == "teal") {
       values <- rcartocolor::carto_pal(length, "Teal")
+    } else if (palette == "NewsRed") {
+      values <- c("#FCBBA1FF", "#FC9272FF" ,"#FB6A4AFF", "#EF3B2CFF", "#CB181DFF" ,"#A50F15FF", "#67000DFF" )
     }
   }
 
