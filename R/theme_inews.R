@@ -73,7 +73,7 @@ ra <- function(x, n = 7){stats::filter(x, rep(1 / n, n), sides = 1)}
 #' @param length the number of colours for the palette, passed automatically from break length
 #' @param direction The direction of palette, passed from scale_inews_ferm
 #' @export
-inews_pal <- function(palette = "diverg", length = NA, direction = 1) {
+inews_pal <- function(palette = "qual", length = NA, direction = 1) {
   if(stringr::str_detect(palette, ">>")){
     lib <- stringr::str_extract(palette, ".+(?=>>)")
     pal <- stringr::str_extract(palette, "(?<=>>).+")
@@ -96,8 +96,6 @@ inews_pal <- function(palette = "diverg", length = NA, direction = 1) {
       values <- rcartocolor::carto_pal(length, "Mint")
     } else if (palette == "teal") {
       values <- rcartocolor::carto_pal(length, "Teal")
-    } else if (palette == "NewsRed") {
-      values <- c("#FCBBA1FF", "#FC9272FF" ,"#FB6A4AFF", "#EF3B2CFF", "#CB181DFF" ,"#A50F15FF", "#67000DFF" )
     }
   }
 
