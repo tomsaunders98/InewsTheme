@@ -273,21 +273,7 @@ save_inews <- function(filename, plot=last_plot(), width = 15, height = 11, type
     width = 25
   } else if (type == "facet"){
     height = 20
-  } else if (type == "fimage"){
-    units = "px"
-    height = 360
-    width = 640
-    ## Change the  text size
-    plot <- plot +
-      theme(
-        legend.text = element_text(size = rel(0.7)),
-        axis.text = element_text(size = rel(0.7)),
-        plot.title = element_text(size = rel(2)),
-        text = element_text(size=rel(2)),
-        plot.subtitle = element_text(size = rel(0.8)),
-        plot.caption = ggtext::element_markdown(size = rel(0.4)),
-      )
-  } else if (type == "box"){
+  }  else if (type == "box"){
     units = "px"
     height = 800
     width = 1440
@@ -301,21 +287,9 @@ save_inews <- function(filename, plot=last_plot(), width = 15, height = 11, type
         plot.subtitle = element_text(size = rel(2)),
         plot.caption = ggtext::element_markdown(size = rel(1)),
       )
-  } else if (type == "fimage_map"){
-    units = "px"
-    height = 360
-    width = 640
-    ## Change the  text size
-    plot <- plot +
-      theme(
-        legend.text = element_text(size = rel(0.5)),
-        plot.title = element_text(size = rel(2), hjust=0.5),
-        text = element_text(size=rel(2)),
-        plot.subtitle = element_text(size = rel(0.8), hjust=0.5),
-        legend.justification = "center",
-        plot.caption = ggtext::element_markdown(size = rel(0.4)),
-        legend.key.width = unit(3, "lines"),
-      )
+  } else if (type == "fw"){
+    height = 10
+    width = 18
   }
 
   ##Build plot
