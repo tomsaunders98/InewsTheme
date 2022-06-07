@@ -329,10 +329,12 @@ save_inews <- function(filename, plot=last_plot(), width = 15, height = 11, type
   plot <- ggplot2::ggplot_gtable(built_plot)
   ## Render graph
   if(device == "png"){
-      ggsave(filename, plot, device = ragg::agg_png(width = width, height = height, units = units), limitsize = FALSE)
+    ggsave(filename, plot, device = ragg::agg_png(width = width, height = height, units = units), limitsize = FALSE)
+    dev.off()
   }
   if(device == "svg"){
     ggsave(filename, plot, dpi = 300, device="svg", fix_text_size = F, width = width, height = height, units = units, limitsize = FALSE)
+    dev.off()
   }
 }
 
