@@ -355,12 +355,12 @@ guide_coloursteps_inews <- function(even.steps = TRUE, show.limits = NULL, ticks
 #' @param labels add labels if % etc.
 #' @param na.value Na value, defaults to light grey
 #' @export
-scale_inews_ferm <- function(palette = palette, breaks = breaks, direction = 1, labels = waiver(), na.value = "#DCDCDC", ...){
+scale_inews_ferm <- function(palette = palette, breaks = breaks, direction = 1, labels = waiver(),type = "fill", na.value = "#DCDCDC", ...){
   # Retrieve palette
   length = length(breaks) + 1
   colours <- inews_pal(palette, length = length, direction)
 
-  binned_scale("fill",
+  binned_scale(type,
                "foo",
                ggplot2:::binned_pal(colours),
                guide=guide_coloursteps_inews(
